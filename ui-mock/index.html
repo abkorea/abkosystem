@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ABKO CS System - UI Mock</title>
+    <style>
+      :root { --bg:#0b1220; --card:#121a2b; --text:#e8eefc; --muted:#9fb1d6; --line:#24304a; --accent:#4f8cff; }
+      *{ box-sizing:border-box; }
+      body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:linear-gradient(180deg,#0b1220,#070c16); color:var(--text); }
+      a{ color:var(--accent); text-decoration:none; }
+      .wrap{ max-width:980px; margin:0 auto; padding:28px 16px; }
+      .title{ font-size:22px; margin:0 0 8px; }
+      .sub{ margin:0 0 18px; color:var(--muted); font-size:14px; }
+      .grid{ display:grid; grid-template-columns:1fr; gap:12px; }
+      @media (min-width:800px){ .grid{ grid-template-columns:1fr 1fr; } }
+      .card{ background:rgba(18,26,43,.75); border:1px solid var(--line); border-radius:14px; padding:16px; }
+      .card h3{ margin:0 0 6px; font-size:16px; }
+      .card p{ margin:0 0 10px; color:var(--muted); font-size:13px; line-height:1.45; }
+      .btn{ display:inline-block; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:#0f1729; }
+      .btn:hover{ border-color:#2f4372; }
+      .note{ margin-top:14px; color:var(--muted); font-size:12px; }
+      code{ background:#0f1729; border:1px solid var(--line); padding:2px 6px; border-radius:8px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1 class="title">ABKO CS System UI Mock</h1>
+      <p class="sub">DB 구축 전, 화면/입력 흐름 확정을 위한 HTML 목업입니다.</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>1) 고객 접수 페이지 (외부)</h3>
+          <p>모바일 1페이지 스크롤. 고객정보/제품/증상/첨부/동의/제출 흐름.</p>
+          <a class="btn" href="./intake.html">intake.html 열기</a>
+        </div>
+
+        <div class="card">
+          <h3>2) 관리자 티켓 리스트 (내부)</h3>
+          <p>상태/우선순위/담당자 필터. 리스트에서 상세로 이동.</p>
+          <a class="btn" href="./admin_list.html">admin_list.html 열기</a>
+        </div>
+
+        <div class="card">
+          <h3>3) 관리자 티켓 상세 (내부)</h3>
+          <p>티켓 헤더 + 품목 라인 + 이벤트/메모 + 첨부 + 배송/결제 섹션.</p>
+          <a class="btn" href="./admin_detail.html">admin_detail.html 열기</a>
+        </div>
+
+        <div class="card">
+          <h3>다음 단계 체크</h3>
+          <p>확정할 것: 상태 8단계 명칭, 필수 입력, 첨부 타입, 동의 문구 버전.</p>
+          <span class="note">메모: 최종 UI 확정 후 DDL v1을 적용합니다.</span>
+        </div>
+      </div>
+
+      <p class="note">Pages 미설정 시, GitHub Pages를 <code>/ui-mock</code> 폴더로 켜면 링크로 바로 볼 수 있어요.</p>
+    </div>
+  </body>
+</html>
+

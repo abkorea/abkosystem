@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ABKO CS - 티켓 상세</title>
+    <link rel="stylesheet" href="./_style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <div>
+          <h1 class="h1">티켓 상세 · CS-2026-0001</h1>
+          <p class="sub">상태/담당자/이벤트/첨부/배송/결제까지 한 화면에서 처리하는 목업.</p>
+        </div>
+        <div class="row">
+          <a class="btn" href="./admin_list.html">리스트</a>
+          <a class="btn" href="./index.html">목업 홈</a>
+          <span class="pill warn">목업(저장 안 됨)</span>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>티켓 정보</strong>
+            <span class="right pill warn">확인중</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <div class="field">
+              <label>상태</label>
+              <select>
+                <option>접수</option>
+                <option selected>확인중</option>
+                <option>입고대기</option>
+                <option>수리중</option>
+                <option>결제대기</option>
+                <option>출고대기</option>
+                <option>완료</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>우선순위</label>
+              <select>
+                <option>normal</option>
+                <option selected>high</option>
+                <option>urgent</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>담당자</label>
+              <select>
+                <option>미배정</option>
+                <option selected>담당자A</option>
+                <option>담당자B</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>접수 채널</label>
+              <select>
+                <option>폼</option>
+                <option>전화</option>
+                <option>카톡</option>
+                <option>이메일</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>요약</label>
+              <input value="전원이 안 켜짐" />
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn primary">저장(목업)</button>
+            <span class="muted small">실제 저장은 DB 적용 후 연결</span>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>고객 정보</strong>
+            <span class="right muted small">PII는 암호화 저장 예정</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <div class="field"><label>이름</label><input value="(암호화)" /></div>
+            <div class="field"><label>휴대폰</label><input value="(암호화)" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>이메일</label><input value="(암호화)" /></div>
+            <div class="field"><label>주소</label><input value="(암호화)" /></div>
+          </div>
+          <div class="row">
+            <span class="pill ok">필수동의</span>
+            <span class="pill">제3자동의</span>
+            <span class="pill">마케팅동의</span>
+          </div>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top:12px;">
+        <div class="row" style="align-items:center;">
+          <strong>품목</strong>
+          <span class="right muted small">티켓 1개에 여러 품목 가능</span>
+        </div>
+        <div class="divider"></div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>제품</th>
+              <th style="width:110px;">유/무상</th>
+              <th style="width:180px;">고객 증상</th>
+              <th style="width:180px;">진단/원인</th>
+              <th style="width:140px;">처리 결과</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ABKO 케이스 XXX</td>
+              <td>무상</td>
+              <td>전원이 안 켜짐</td>
+              <td class="muted">(선택) root_cause_code</td>
+              <td class="muted">(선택) resolution_code</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn">품목 추가(목업)</button>
+        </div>
+      </section>
+
+      <div class="grid grid-2" style="margin-top:12px;">
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>첨부</strong>
+            <span class="right muted small">사진/영상/영수증/통화녹음</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <span class="pill">photo</span>
+            <span class="pill">receipt</span>
+            <span class="pill">call_audio</span>
+          </div>
+          <div class="divider"></div>
+          <button class="btn primary">업로드(목업)</button>
+        </section>
+
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>이벤트/메모</strong>
+            <span class="right muted small">상태 변경 이력 + 내부 메모</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <textarea placeholder="내부 메모를 남겨주세요."></textarea>
+          </div>
+          <div class="row">
+            <button class="btn ok">메모 추가(목업)</button>
+          </div>
+          <div class="divider"></div>
+          <div class="muted small">예) 2026-04-18 14:10 담당자A · 상태: 접수 → 확인중</div>
+        </section>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:12px;">
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>배송</strong>
+            <span class="right muted small">입고/반송 트래킹</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <div class="field"><label>구분</label><select><option>입고</option><option>반송</option></select></div>
+            <div class="field"><label>택배사</label><input placeholder="CJ" /></div>
+            <div class="field"><label>운송장</label><input placeholder="1234..." /></div>
+          </div>
+          <button class="btn primary">추가(목업)</button>
+        </section>
+
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>결제</strong>
+            <span class="right muted small">유상 수리/부품 비용</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <div class="field"><label>금액</label><input placeholder="0" inputmode="numeric" /></div>
+            <div class="field"><label>방법</label><select><option>계좌</option><option>카드</option><option>현금</option></select></div>
+            <div class="field"><label>상태</label><select><option>미결</option><option>결제완료</option></select></div>
+          </div>
+          <button class="btn primary">저장(목업)</button>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>
+

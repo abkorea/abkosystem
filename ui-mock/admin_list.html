@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ABKO CS - 티켓 리스트</title>
+    <link rel="stylesheet" href="./_style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <div>
+          <h1 class="h1">티켓 리스트</h1>
+          <p class="sub">내부 관리 화면 목업. 필터/검색/상태변경 흐름 확인용.</p>
+        </div>
+        <div class="row">
+          <a class="btn" href="./index.html">목업 홈</a>
+          <span class="pill warn">목업(저장 안 됨)</span>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="row">
+          <div class="field" style="min-width:180px;">
+            <label>상태</label>
+            <select>
+              <option>전체</option>
+              <option>접수</option>
+              <option>확인중</option>
+              <option>입고대기</option>
+              <option>수리중</option>
+              <option>결제대기</option>
+              <option>출고대기</option>
+              <option>완료</option>
+            </select>
+          </div>
+          <div class="field" style="min-width:160px;">
+            <label>우선순위</label>
+            <select>
+              <option>전체</option>
+              <option>normal</option>
+              <option>high</option>
+              <option>urgent</option>
+            </select>
+          </div>
+          <div class="field" style="min-width:180px;">
+            <label>담당자</label>
+            <select>
+              <option>전체</option>
+              <option>담당자A</option>
+              <option>담당자B</option>
+            </select>
+          </div>
+          <div class="field" style="min-width:240px;">
+            <label>검색</label>
+            <input placeholder="접수번호/연락처/제품/키워드" />
+          </div>
+          <button class="btn primary" style="min-width:120px;">조회(목업)</button>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:12px;">
+        <div class="row" style="align-items:center;">
+          <strong>결과</strong>
+          <span class="right muted small">총 3건 (샘플 데이터)</span>
+        </div>
+        <div class="divider"></div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:140px;">접수번호</th>
+              <th>요약</th>
+              <th style="width:90px;">상태</th>
+              <th style="width:90px;">우선순위</th>
+              <th style="width:120px;">담당자</th>
+              <th style="width:140px;">등록일</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="./admin_detail.html">CS-2026-0001</a></td>
+              <td>전원이 안 켜짐 (케이스)</td>
+              <td><span class="pill warn">확인중</span></td>
+              <td>high</td>
+              <td>담당자A</td>
+              <td>2026-04-18</td>
+            </tr>
+            <tr>
+              <td><a href="./admin_detail.html">CS-2026-0002</a></td>
+              <td>소음 발생 (쿨러)</td>
+              <td><span class="pill">입고대기</span></td>
+              <td>normal</td>
+              <td>담당자B</td>
+              <td>2026-04-18</td>
+            </tr>
+            <tr>
+              <td><a href="./admin_detail.html">CS-2026-0003</a></td>
+              <td>결제 문의 (유상 수리)</td>
+              <td><span class="pill ok">완료</span></td>
+              <td>normal</td>
+              <td>담당자A</td>
+              <td>2026-04-17</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+</html>
+

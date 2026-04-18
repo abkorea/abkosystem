@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ABKO CS 접수</title>
+    <link rel="stylesheet" href="./_style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <div>
+          <h1 class="h1">CS/AS 접수</h1>
+          <p class="sub">예상 소요시간 2분. 사진/영수증은 마지막에 첨부해 주세요.</p>
+        </div>
+        <div class="row">
+          <a class="btn" href="./index.html">목업 홈</a>
+          <span class="pill warn">목업(저장 안 됨)</span>
+        </div>
+      </div>
+
+      <div class="grid">
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>1) 고객 정보</strong>
+            <span class="right kpi">필수 항목을 최소화</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <div class="field">
+              <label>고객 유형</label>
+              <select>
+                <option>개인</option>
+                <option>고객사</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>이름</label>
+              <input placeholder="홍길동" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>휴대폰</label>
+              <input placeholder="010-0000-0000" inputmode="tel" />
+            </div>
+            <div class="field">
+              <label>이메일 (선택)</label>
+              <input placeholder="email@example.com" inputmode="email" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>주소 (선택, 택배 필요 시)</label>
+              <input placeholder="도로명 + 상세주소" />
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>2) 문의 정보</strong>
+            <span class="right kpi">티켓 1개에 품목 여러 개 가능</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <div class="field">
+              <label>문의 유형</label>
+              <select>
+                <option>고장 및 수리</option>
+                <option>불량/교환</option>
+                <option>사용 문의</option>
+                <option>부품 구매</option>
+                <option>기타</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>우선순위 (선택)</label>
+              <select>
+                <option>normal</option>
+                <option>high</option>
+                <option>urgent</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>요약</label>
+              <input placeholder="예: 전원이 안 켜져요" />
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>3) 제품/증상 (품목 1)</strong>
+            <span class="right kpi">MVP: 제품 검색(ERP) 연결 예정</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <div class="field">
+              <label>제품명</label>
+              <input placeholder="예: ABKO XXX" />
+            </div>
+            <div class="field">
+              <label>수량</label>
+              <input value="1" inputmode="numeric" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>구매처(선택)</label>
+              <input placeholder="예: 네이버/쿠팡/오프라인" />
+            </div>
+            <div class="field">
+              <label>구매일(선택)</label>
+              <input type="date" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>증상 상세</label>
+              <textarea placeholder="증상, 발생 조건, 재현 방법을 적어주세요."></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn">+ 품목 추가(목업)</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>4) 첨부 업로드</strong>
+            <span class="right kpi">사진/영상/영수증</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <div class="field">
+              <label>첨부 파일</label>
+              <input type="file" multiple />
+              <div class="muted small">* 실제 업로드/저장은 MVP에서 연결됩니다.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>5) 동의</strong>
+            <span class="right kpi">필수/선택 구분</span>
+          </div>
+          <div class="divider"></div>
+          <div class="grid">
+            <label><input type="checkbox" /> (필수) 개인정보 수집/이용 동의</label>
+            <label><input type="checkbox" /> (선택) 제3자 제공 동의</label>
+            <label><input type="checkbox" /> (선택) 마케팅 수신 동의</label>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="row" style="align-items:center;">
+            <strong>6) 제출</strong>
+            <span class="right kpi">제출 후 접수번호 안내</span>
+          </div>
+          <div class="divider"></div>
+          <div class="row">
+            <button class="btn primary">접수 제출(목업)</button>
+            <span class="muted small">제출 시: “접수번호: CS-2026-0001” 표시 예정</span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>
+
