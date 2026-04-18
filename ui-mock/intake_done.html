@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>접수 완료</title>
+    <link rel="stylesheet" href="./_style.css" />
+    <style>
+      .big{ font-size:22px; margin:0; }
+      .num{ font-size:26px; font-weight:700; margin:10px 0 0; }
+      .box{ padding:18px; border-radius:14px; border:1px dashed rgba(79,140,255,.5); background:rgba(79,140,255,.08); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <div>
+          <h1 class="big">접수가 완료되었습니다</h1>
+          <p class="sub">담당자가 확인 후 안내드리겠습니다.</p>
+        </div>
+        <div class="row">
+          <a class="btn" href="./index.html">목업 홈</a>
+          <a class="btn" href="./intake.html">다시 접수</a>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="box">
+          <div class="muted small">접수번호(티켓번호)</div>
+          <div id="ticketNo" class="num">CS-2026-0001</div>
+          <div class="divider"></div>
+          <div class="muted small">추가 자료가 필요하면 안내드릴 수 있습니다.</div>
+        </div>
+      </section>
+
+      <script>
+        const t = sessionStorage.getItem('mock_ticket_no');
+        if(t) document.getElementById('ticketNo').textContent = t;
+      </script>
+    </div>
+  </body>
+</html>
+

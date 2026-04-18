@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ABKO CS 접수</title>
     <link rel="stylesheet" href="./_style.css" />
+    <style>
+      .hint{ margin-top:6px; font-size:12px; color:var(--muted); }
+      .error{ background: rgba(255,107,107,.14) !important; border-color: rgba(255,107,107,.35) !important; }
+      .warn-text{ margin-top:6px; font-size:12px; color: var(--bad); display:none; }
+      .warn-text.show{ display:block; }
+      .addr-row{ display:grid; gap:10px; grid-template-columns: 1fr; }
+      @media(min-width:700px){ .addr-row{ grid-template-columns: 1fr 1fr; } }
+      .inline{ display:flex; gap:10px; }
+      .inline .field{ min-width: 0; }
+    </style>
   </head>
   <body>
     <div class="wrap">
@@ -42,17 +52,32 @@
           <div class="row">
             <div class="field">
               <label>휴대폰</label>
-              <input placeholder="010-0000-0000" inputmode="tel" />
+              <input id="phone" placeholder="000-0000-0000" inputmode="tel" maxlength="13" />
+              <div class="hint">숫자만 입력해도 자동으로 000-0000-0000 형식으로 바뀝니다.</div>
             </div>
             <div class="field">
               <label>이메일 (선택)</label>
-              <input placeholder="email@example.com" inputmode="email" />
+              <input id="email" placeholder="email@example.com" inputmode="email" />
+              <div id="emailWarn" class="warn-text">이메일 양식으로 입력해 주세요.</div>
             </div>
           </div>
           <div class="row">
-            <div class="field">
+            <div class="field" style="flex:1;">
               <label>주소 (선택, 택배 필요 시)</label>
-              <input placeholder="도로명 + 상세주소" />
+              <div class="addr-row">
+                <div class="field" style="min-width:0;">
+                  <label class="muted">도로명 주소</label>
+                  <div class="inline">
+                    <input id="addrBase" placeholder="주소검색을 눌러주세요" readonly />
+                    <button id="addrSearch" class="btn" type="button" style="white-space:nowrap;">주소검색</button>
+                  </div>
+                </div>
+                <div class="field" style="min-width:0;">
+                  <label class="muted">상세주소</label>
+                  <input id="addrDetail" placeholder="예: 101동 1203호" />
+                </div>
+              </div>
+              <div class="hint">저장 시에는 도로명+상세주소를 합쳐 1개 필드로 저장합니다.</div>
             </div>
           </div>
         </section>
@@ -98,29 +123,26 @@
           </div>
           <div class="divider"></div>
           <div class="row">
-            <div class="field">
+            <div class="field" style="flex:1;">
               <label>제품명</label>
               <input placeholder="예: ABKO XXX" />
             </div>
-            <div class="field">
+            <div class="field" style="max-width:140px;">
               <label>수량</label>
               <input value="1" inputmode="numeric" />
             </div>
           </div>
           <div class="row">
             <div class="field">
-              <label>구매처(선택)</label>
-              <input placeholder="예: 네이버/쿠팡/오프라인" />
-            </div>
-            <div class="field">
-              <label>구매일(선택)</label>
-              <input type="date" />
+              <label>증상 상세</label>
+              <textarea placeholder="증상, 발생 조건, 재현 방법을 적어주세요."></textarea>
             </div>
           </div>
           <div class="row">
             <div class="field">
-              <label>증상 상세</label>
-              <textarea placeholder="증상, 발생 조건, 재현 방법을 적어주세요."></textarea>
+              <label>증상 사진 첨부(선택)</label>
+              <input type="file" accept="image/*" multiple />
+              <div class="muted small">* 실제 업로드/저장은 MVP에서 연결됩니다.</div>
             </div>
           </div>
           <div class="row">
@@ -136,9 +158,19 @@
           <div class="divider"></div>
           <div class="row">
             <div class="field">
-              <label>첨부 파일</label>
+              <label>첨부 파일 (사진/영상/영수증)</label>
               <input type="file" multiple />
               <div class="muted small">* 실제 업로드/저장은 MVP에서 연결됩니다.</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>구매처(선택)</label>
+              <input placeholder="예: 네이버/쿠팡/오프라인" />
+            </div>
+            <div class="field">
+              <label>구매일(선택)</label>
+              <input type="date" />
             </div>
           </div>
         </section>
@@ -151,7 +183,6 @@
           <div class="divider"></div>
           <div class="grid">
             <label><input type="checkbox" /> (필수) 개인정보 수집/이용 동의</label>
-            <label><input type="checkbox" /> (선택) 제3자 제공 동의</label>
             <label><input type="checkbox" /> (선택) 마케팅 수신 동의</label>
           </div>
         </section>
@@ -163,12 +194,73 @@
           </div>
           <div class="divider"></div>
           <div class="row">
-            <button class="btn primary">접수 제출(목업)</button>
-            <span class="muted small">제출 시: “접수번호: CS-2026-0001” 표시 예정</span>
+            <button id="submitBtn" class="btn primary" type="button">접수 제출</button>
+            <span class="muted small">제출 시 필드 검증 후 완료 페이지로 이동합니다.</span>
           </div>
         </section>
       </div>
     </div>
+
+    <script>
+      const phone = document.getElementById('phone');
+      const email = document.getElementById('email');
+      const emailWarn = document.getElementById('emailWarn');
+      const submitBtn = document.getElementById('submitBtn');
+      const addrBase = document.getElementById('addrBase');
+      const addrDetail = document.getElementById('addrDetail');
+      const addrSearch = document.getElementById('addrSearch');
+
+      function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
+
+      function formatPhone(raw){
+        const d = digitsOnly(raw).slice(0,11);
+        if(d.length <= 3) return d;
+        if(d.length <= 7) return `${d.slice(0,3)}-${d.slice(3)}`;
+        return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+      }
+
+      function isValidEmail(v){
+        if(!v) return true; // optional
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      }
+
+      function setEmailState(){
+        const ok = isValidEmail(email.value.trim());
+        email.classList.toggle('error', !ok);
+        emailWarn.classList.toggle('show', !ok);
+        return ok;
+      }
+
+      phone.addEventListener('input', () => {
+        phone.value = formatPhone(phone.value);
+      });
+
+      email.addEventListener('input', setEmailState);
+      email.addEventListener('blur', setEmailState);
+
+      addrSearch.addEventListener('click', () => {
+        // 목업: 실제 도로명 API 연동 전, 샘플 값을 채워넣습니다.
+        addrBase.value = '서울특별시 강남구 테헤란로 123';
+        addrDetail.focus();
+      });
+
+      submitBtn.addEventListener('click', () => {
+        const okEmail = setEmailState();
+        if(!okEmail){
+          email.scrollIntoView({behavior:'smooth', block:'center'});
+          return;
+        }
+
+        // 목업 저장용: 주소 합치기(1필드 저장 가정)
+        const fullAddress = [addrBase.value.trim(), addrDetail.value.trim()].filter(Boolean).join(' ');
+        sessionStorage.setItem('mock_full_address', fullAddress);
+
+        // 목업 티켓번호
+        const ticketNo = `CS-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;
+        sessionStorage.setItem('mock_ticket_no', ticketNo);
+
+        window.location.href = './intake_done.html';
+      });
+    </script>
   </body>
 </html>
-
