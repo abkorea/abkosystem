@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>접수 완료</title>
+    <link rel="stylesheet" href="./_style.css" />
+    <style>
+      :root{ --pageMax: 460px; }
+      body{ background:#f5f7fb; }
+      .page{ max-width: var(--pageMax); margin:0 auto; padding: 22px 14px 28px; }
+      .hero h1{ margin:0; font-size:22px; letter-spacing:-.4px; }
+      .hero p{ margin:10px 0 0; color:var(--muted); font-size:13px; line-height:1.5; }
+      .box{ margin-top:14px; background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow: var(--shadow); }
+      .num{ margin-top:10px; font-size:26px; font-weight:800; letter-spacing:-.3px; }
+      .btnWide{ width:100%; padding:14px 14px; border-radius:14px; font-weight:700; }
+      .btnWide.primary{ background: rgba(16,183,177,.14); border-color: rgba(16,183,177,.55); }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="hero">
+        <h1>접수가 완료되었습니다</h1>
+        <p>담당자가 확인 후 안내드리겠습니다. 추가 자료가 필요하면 연락드릴 수 있어요.</p>
+      </div>
+
+      <div class="box">
+        <div class="muted small">접수번호(티켓번호)</div>
+        <div id="ticketNo" class="num">CS-2026-0001</div>
+        <div class="divider"></div>
+        <div class="muted small">이 번호로 진행상황 조회/문의가 가능합니다.</div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <a class="btn btnWide primary" href="./intake_steps.html">새 접수하기</a>
+      </div>
+
+      <script>
+        const t = sessionStorage.getItem('mock_ticket_no');
+        if(t) document.getElementById('ticketNo').textContent = t;
+      </script>
+    </div>
+  </body>
+</html>
+

@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ABKO AS 접수</title>
+    <link rel="stylesheet" href="./_style.css" />
+    <style>
+      :root{ --pageMax: 460px; }
+      body{ background: #f5f7fb; }
+      .page{ max-width: var(--pageMax); margin: 0 auto; padding: 12px 14px 28px; }
+      .appbar{ position: sticky; top:0; z-index: 10; background: rgba(245,247,251,.92); backdrop-filter: blur(8px); padding: 10px 0 8px; }
+      .appbarRow{ display:flex; align-items:center; gap:10px; }
+      .back{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+      .back:active{ transform: translateY(1px); }
+      .titleWrap{ flex:1; }
+      .title{ margin:0; font-size:16px; letter-spacing:-.2px; }
+      .subtitle{ margin:4px 0 0; font-size:12px; color:var(--muted); }
+      .progress{ height:6px; background:#eaf0f7; border-radius:999px; overflow:hidden; border:1px solid var(--line); }
+      .bar{ height:100%; width:0%; background: var(--accent); border-radius:999px; transition: width .25s ease; }
+
+      .stage{ display:none; animation: in .22s ease; }
+      .stage.active{ display:block; }
+      @keyframes in{ from{ opacity:.4; transform: translateX(12px); } to{ opacity:1; transform: translateX(0);} }
+
+      .hero{ margin-top: 10px; }
+      .hero h2{ margin:0; font-size:20px; letter-spacing:-.4px; }
+      .hero p{ margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.45; }
+
+      .seg{ display:flex; gap:10px; margin-top:14px; }
+      .seg button{ flex:1; padding:14px 12px; border-radius:14px; border:1px solid var(--line); background:#fff; text-align:left; }
+      .seg .k{ font-weight:700; font-size:14px; }
+      .seg .d{ margin-top:6px; font-size:12px; color:var(--muted); }
+      .seg button.selected{ border-color: rgba(16,183,177,.55); box-shadow: 0 0 0 4px rgba(16,183,177,.10); }
+
+      .card{ padding:16px; border-radius:16px; }
+      .stack{ display:grid; gap:12px; margin-top:14px; }
+
+      .cta{ position: sticky; bottom: 0; background: rgba(245,247,251,.92); backdrop-filter: blur(8px); padding: 12px 0 10px; }
+      .ctaRow{ display:flex; gap:10px; }
+      .btnWide{ width:100%; padding:14px 14px; border-radius:14px; font-weight:700; }
+      .btnWide.primary{ background: rgba(16,183,177,.14); border-color: rgba(16,183,177,.55); }
+      .btnWide:disabled{ opacity:.45; cursor:not-allowed; }
+
+      .error{ background: rgba(239,68,68,.10) !important; border-color: rgba(239,68,68,.35) !important; }
+      .warn{ margin-top:6px; font-size:12px; color: var(--bad); display:none; }
+      .warn.show{ display:block; }
+
+      .chip{ display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:999px; background:#fff; border:1px solid var(--line); font-size:12px; color:var(--muted); }
+      .list{ display:grid; gap:10px; }
+      .item{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px; }
+      .itemTop{ display:flex; gap:10px; align-items:flex-start; }
+      .itemTop strong{ font-size:14px; }
+      .itemMeta{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.4; }
+      .itemBtns{ margin-top:10px; display:flex; gap:8px; }
+      .btnSmall{ padding:10px 10px; border-radius:12px; }
+
+      .sheet{ position:fixed; inset:0; display:none; background: rgba(17,24,39,.35); }
+      .sheet.show{ display:block; }
+      .sheetPanel{ position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:18px 18px 0 0; border:1px solid var(--line); padding:14px; box-shadow: 0 -16px 40px rgba(17,24,39,.18); max-width: var(--pageMax); margin: 0 auto; }
+      .sheetHead{ display:flex; align-items:center; justify-content:space-between; }
+      .sheetHead strong{ font-size:14px; }
+      .x{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="appbar">
+        <div class="appbarRow">
+          <button id="backBtn" class="back" type="button" aria-label="뒤로">←</button>
+          <div class="titleWrap">
+            <h1 id="appTitle" class="title">AS 접수</h1>
+            <div id="appSub" class="subtitle">Step <span id="stepNow">1</span> / 3</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="progress"><div id="bar" class="bar"></div></div>
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <section id="step1" class="stage active">
+        <div class="hero">
+          <h2>어떤 유형으로 접수하시나요?</h2>
+          <p>개인/사업자에 따라 필요한 정보가 달라요. 먼저 유형을 선택해 주세요.</p>
+        </div>
+        <div class="seg">
+          <button id="typePersonal" type="button">
+            <div class="k">개인</div>
+            <div class="d">개인 고객 접수</div>
+          </button>
+          <button id="typeBiz" type="button">
+            <div class="k">사업자</div>
+            <div class="d">사업자/고객사 접수</div>
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 2 -->
+      <section id="step2" class="stage">
+        <div class="hero">
+          <h2>개인정보를 입력해 주세요</h2>
+          <p>연락 가능한 정보가 있어야 빠르게 처리할 수 있어요.</p>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="stack">
+              <div class="field">
+                <label>이름</label>
+                <input id="name" placeholder="홍길동" />
+              </div>
+              <div class="field">
+                <label>휴대폰</label>
+                <input id="phone" placeholder="000-0000-0000" inputmode="tel" maxlength="13" />
+              </div>
+              <div class="field">
+                <label>이메일 (선택)</label>
+                <input id="email" placeholder="email@example.com" inputmode="email" />
+                <div id="emailWarn" class="warn">이메일 양식으로 입력해 주세요.</div>
+              </div>
+              <div class="field">
+                <label>주소 (선택)</label>
+                <div class="row">
+                  <input id="addrBase" placeholder="주소검색" readonly />
+                  <button id="addrSearch" class="btn" type="button" style="white-space:nowrap;">주소검색</button>
+                </div>
+                <input id="addrDetail" placeholder="상세주소" style="margin-top:10px;" />
+                <div class="hint">저장 시 도로명+상세주소를 합쳐 1개 필드로 저장</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <strong style="font-size:14px;">동의</strong>
+            <div class="divider"></div>
+            <label style="display:flex; gap:10px; align-items:flex-start;">
+              <input id="consentRequired" type="checkbox" style="margin-top:2px;" />
+              <span>
+                <div style="font-weight:700;">(필수) 개인정보 수집/이용 동의</div>
+                <div class="muted small">접수 처리 및 안내를 위해 필요합니다.</div>
+              </span>
+            </label>
+            <div style="margin-top:10px;">
+              <label style="display:flex; gap:10px; align-items:flex-start;">
+                <input id="consentMarketing" type="checkbox" style="margin-top:2px;" />
+                <span>
+                  <div style="font-weight:700;">(선택) 마케팅 수신 동의</div>
+                  <div class="muted small">이벤트/신제품 소식을 받을 수 있어요.</div>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 3 -->
+      <section id="step3" class="stage">
+        <div class="hero">
+          <h2>제품/증상 내용을 추가해 주세요</h2>
+          <p>여러 제품을 한 번에 접수할 수 있어요.</p>
+        </div>
+
+        <div class="stack">
+          <div class="card">
+            <div class="row" style="align-items:center; justify-content:space-between;">
+              <strong style="font-size:14px;">접수 리스트</strong>
+              <span class="chip">품목 <span id="itemCount">0</span>개</span>
+            </div>
+            <div class="divider"></div>
+            <div id="items" class="list"></div>
+            <div style="margin-top:12px;">
+              <button id="addItem" class="btn btnWide primary" type="button">+ 제품 추가</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <strong style="font-size:14px;">추가 첨부(선택)</strong>
+            <div class="divider"></div>
+            <div class="field">
+              <label>사진/영상/영수증</label>
+              <input type="file" accept="image/*,video/*,application/pdf" multiple />
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>구매처(선택)</label>
+                <input placeholder="예: 네이버/쿠팡/오프라인" />
+              </div>
+              <div class="field">
+                <label>구매일(선택)</label>
+                <input type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cta">
+        <div class="ctaRow">
+          <button id="nextBtn" class="btn btnWide primary" type="button" disabled>다음</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom sheet for add/edit item -->
+    <div id="sheet" class="sheet" role="dialog" aria-modal="true">
+      <div class="sheetPanel">
+        <div class="sheetHead">
+          <strong id="sheetTitle">제품 추가</strong>
+          <button id="closeSheet" class="x" type="button">✕</button>
+        </div>
+        <div class="divider"></div>
+        <div class="stack">
+          <div class="row">
+            <div class="field" style="flex:1;">
+              <label>제품명</label>
+              <input id="pName" placeholder="예: ABKO XXX" />
+            </div>
+            <div class="field" style="max-width:120px;">
+              <label>수량</label>
+              <input id="pQty" value="1" inputmode="numeric" />
+            </div>
+          </div>
+          <div class="field">
+            <label>증상 상세</label>
+            <textarea id="pSym" placeholder="증상, 발생 조건, 재현 방법"></textarea>
+          </div>
+          <div class="field">
+            <label>증상 사진(선택)</label>
+            <input id="pPhoto" type="file" accept="image/*" multiple />
+          </div>
+          <button id="saveItem" class="btn btnWide primary" type="button">리스트에 추가</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const stages = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
+      const stepNowEl = document.getElementById('stepNow');
+      const bar = document.getElementById('bar');
+      const backBtn = document.getElementById('backBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      // step 1
+      const typePersonal = document.getElementById('typePersonal');
+      const typeBiz = document.getElementById('typeBiz');
+      let customerType = '';
+
+      // step 2
+      const nameEl = document.getElementById('name');
+      const phoneEl = document.getElementById('phone');
+      const emailEl = document.getElementById('email');
+      const emailWarn = document.getElementById('emailWarn');
+      const consentRequired = document.getElementById('consentRequired');
+      const addrBase = document.getElementById('addrBase');
+      const addrDetail = document.getElementById('addrDetail');
+      const addrSearch = document.getElementById('addrSearch');
+
+      // step 3
+      const itemsWrap = document.getElementById('items');
+      const itemCount = document.getElementById('itemCount');
+      const addItemBtn = document.getElementById('addItem');
+
+      // sheet
+      const sheet = document.getElementById('sheet');
+      const closeSheet = document.getElementById('closeSheet');
+      const saveItem = document.getElementById('saveItem');
+      const pName = document.getElementById('pName');
+      const pQty = document.getElementById('pQty');
+      const pSym = document.getElementById('pSym');
+      let items = [];
+
+      let step = 1;
+
+      function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
+      function formatPhone(raw){
+        const d = digitsOnly(raw).slice(0,11);
+        if(d.length <= 3) return d;
+        if(d.length <= 7) return `${d.slice(0,3)}-${d.slice(3)}`;
+        return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+      }
+      function isValidEmail(v){ if(!v) return true; return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+      function setEmailState(){
+        const ok = isValidEmail(emailEl.value.trim());
+        emailEl.classList.toggle('error', !ok);
+        emailWarn.classList.toggle('show', !ok);
+        return ok;
+      }
+
+      function setProgress(){
+        stepNowEl.textContent = String(step);
+        bar.style.width = `${(step/3)*100}%`;
+        backBtn.style.visibility = (step === 1) ? 'hidden' : 'visible';
+      }
+
+      function showStep(n){
+        step = n;
+        stages.forEach((s,i)=> s.classList.toggle('active', i === (n-1)));
+        setProgress();
+        updateNextState();
+      }
+
+      function updateNextState(){
+        if(step === 1){
+          nextBtn.textContent = '다음';
+          nextBtn.disabled = !customerType;
+          return;
+        }
+        if(step === 2){
+          nextBtn.textContent = '다음';
+          const okEmail = setEmailState();
+          const ok = nameEl.value.trim() && phoneEl.value.trim().length >= 12 && consentRequired.checked && okEmail;
+          nextBtn.disabled = !ok;
+          return;
+        }
+        if(step === 3){
+          nextBtn.textContent = '접수하기';
+          nextBtn.disabled = items.length === 0;
+        }
+      }
+
+      function selectType(t){
+        customerType = t;
+        typePersonal.classList.toggle('selected', t==='personal');
+        typeBiz.classList.toggle('selected', t==='biz');
+        updateNextState();
+      }
+
+      typePersonal.addEventListener('click', ()=>selectType('personal'));
+      typeBiz.addEventListener('click', ()=>selectType('biz'));
+
+      phoneEl.addEventListener('input', ()=>{ phoneEl.value = formatPhone(phoneEl.value); updateNextState(); });
+      emailEl.addEventListener('input', ()=>{ setEmailState(); updateNextState(); });
+      nameEl.addEventListener('input', updateNextState);
+      consentRequired.addEventListener('change', updateNextState);
+
+      addrSearch.addEventListener('click', ()=>{
+        // 목업: 도로명 검색 UI는 다음 단계에서 모달/리스트로 확장
+        addrBase.value = '서울특별시 강남구 테헤란로 123';
+        addrDetail.focus();
+      });
+
+      backBtn.addEventListener('click', ()=>{ if(step>1) showStep(step-1); });
+      nextBtn.addEventListener('click', ()=>{
+        if(step < 3) return showStep(step+1);
+
+        // submit mock
+        const fullAddress = [addrBase.value.trim(), addrDetail.value.trim()].filter(Boolean).join(' ');
+        sessionStorage.setItem('mock_customer_type', customerType);
+        sessionStorage.setItem('mock_full_address', fullAddress);
+        const ticketNo = `CS-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;
+        sessionStorage.setItem('mock_ticket_no', ticketNo);
+        sessionStorage.setItem('mock_items', JSON.stringify(items));
+        window.location.href = './intake_steps_done.html';
+      });
+
+      function renderItems(){
+        itemCount.textContent = String(items.length);
+        itemsWrap.innerHTML = '';
+        if(items.length === 0){
+          const empty = document.createElement('div');
+          empty.className = 'muted small';
+          empty.textContent = '아직 추가된 제품이 없어요. “제품 추가”를 눌러주세요.';
+          itemsWrap.appendChild(empty);
+        }
+        items.forEach((it, idx)=>{
+          const el = document.createElement('div');
+          el.className = 'item';
+          el.innerHTML = `
+            <div class="itemTop">
+              <div style="flex:1;">
+                <strong>${escapeHtml(it.name)}</strong>
+                <div class="itemMeta">수량: ${escapeHtml(String(it.qty))}</div>
+                <div class="itemMeta">${escapeHtml(it.symptom || '')}</div>
+              </div>
+            </div>
+            <div class="itemBtns">
+              <button class="btn btnSmall" type="button" data-act="remove" data-idx="${idx}">삭제</button>
+            </div>
+          `;
+          itemsWrap.appendChild(el);
+        });
+        updateNextState();
+      }
+
+      function escapeHtml(s){
+        return (s??'').toString().replace(/[&<>"']/g, (m)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+      }
+
+      itemsWrap.addEventListener('click', (e)=>{
+        const btn = e.target.closest('button');
+        if(!btn) return;
+        const act = btn.getAttribute('data-act');
+        const idx = Number(btn.getAttribute('data-idx'));
+        if(act==='remove'){
+          items.splice(idx,1);
+          renderItems();
+        }
+      });
+
+      function openSheet(){
+        sheet.classList.add('show');
+        pName.value='';
+        pQty.value='1';
+        pSym.value='';
+        pName.focus();
+      }
+      function closeSheetFn(){ sheet.classList.remove('show'); }
+      addItemBtn.addEventListener('click', openSheet);
+      closeSheet.addEventListener('click', closeSheetFn);
+      sheet.addEventListener('click', (e)=>{ if(e.target === sheet) closeSheetFn(); });
+
+      saveItem.addEventListener('click', ()=>{
+        const name = pName.value.trim();
+        const qty = Math.max(1, parseInt(pQty.value||'1',10) || 1);
+        if(!name){ pName.classList.add('error'); pName.focus(); return; }
+        pName.classList.remove('error');
+        items.push({ name, qty, symptom: pSym.value.trim() });
+        closeSheetFn();
+        renderItems();
+      });
+
+      // init
+      setProgress();
+      renderItems();
+      updateNextState();
+    </script>
+  </body>
+</html>
+
