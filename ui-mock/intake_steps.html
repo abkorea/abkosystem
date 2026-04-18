@@ -10,14 +10,14 @@
       body{ background: var(--bg); }
       .page{ max-width: var(--pageMax); margin: 0 auto; padding: 12px 14px 28px; }
       .appbar{ position: sticky; top:0; z-index: 10; background: rgba(242,244,247,.92); backdrop-filter: blur(8px); padding: 10px 0 8px; }
-      .appbarRow{ display:flex; align-items:center; gap:10px; }
+      .appbarRow{ display:grid; grid-template-columns: 38px 1fr 38px; align-items:center; gap:10px; }
       .back{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
       .back:active{ transform: translateY(1px); }
-      .titleWrap{ flex:1; }
-      .title{ margin:0; font-size:17px; letter-spacing:-.3px; }
-      .subtitle{ margin:4px 0 0; font-size:12px; color:var(--muted); }
-      .progress{ height:6px; background:#eaf0f7; border-radius:999px; overflow:hidden; border:1px solid var(--line); }
-      .bar{ height:100%; width:0%; background: var(--accent); border-radius:999px; transition: width .25s ease; }
+      .titleWrap{ text-align:center; }
+      .title{ margin:0; font-size:20px; letter-spacing:-.6px; font-weight:800; }
+      .subtitle{ display:none; }
+      .progress{ display:none; }
+      .bar{ display:none; }
 
       .stage{ display:none; animation: in .22s ease; }
       .stage.active{ display:block; }
@@ -46,6 +46,9 @@
       .warn{ margin-top:6px; font-size:12px; color: var(--bad); display:none; }
       .warn.show{ display:block; }
 
+      /* bigger field labels for mobile */
+      label{ font-size:13px; }
+
       .chip{ display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:999px; background:#fff; border:1px solid var(--line); font-size:12px; color:var(--muted); }
       .list{ display:grid; gap:10px; }
       .item{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px; box-shadow: var(--shadow); }
@@ -55,12 +58,13 @@
       .itemBtns{ margin-top:10px; display:flex; gap:8px; }
       .btnSmall{ padding:10px 10px; border-radius:12px; }
 
-      .sheet{ position:fixed; inset:0; display:none; background: rgba(17,24,39,.35); }
-      .sheet.show{ display:block; }
-      .sheetPanel{ position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:18px 18px 0 0; border:1px solid var(--line); padding:14px; box-shadow: 0 -16px 40px rgba(17,24,39,.18); max-width: var(--pageMax); margin: 0 auto; }
-      .sheetHead{ display:flex; align-items:center; justify-content:space-between; }
-      .sheetHead strong{ font-size:14px; }
-      .x{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; }
+
+      /* full-screen item editor */
+      .full{ position:fixed; inset:0; display:none; background: var(--bg); z-index: 50; }
+      .full.show{ display:block; }
+      .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 28px; }
+      .fullCta{ position: sticky; bottom: 0; background: rgba(242,244,247,.92); backdrop-filter: blur(8px); padding: 12px 0 10px; }
+      .thumb{ width:44px; height:44px; border-radius:12px; border:1px solid var(--line); object-fit:cover; background:#fff; }
     </style>
   </head>
   <body>
@@ -70,8 +74,8 @@
           <button id="backBtn" class="back" type="button" aria-label="뒤로">←</button>
           <div class="titleWrap">
             <h1 id="appTitle" class="title">AS 접수</h1>
-            <div id="appSub" class="subtitle">Step <span id="stepNow">1</span> / 3</div>
           </div>
+          <div></div>
         </div>
         <div style="margin-top:10px;">
           <div class="progress"><div id="bar" class="bar"></div></div>
@@ -163,10 +167,10 @@
 
         <div class="stack">
           <div class="card">
-            <div class="row" style="align-items:center; justify-content:space-between;">
-              <strong style="font-size:14px;">접수 리스트</strong>
-              <span class="chip">품목 <span id="itemCount">0</span>개</span>
-            </div>
+          <div class="row" style="align-items:center; justify-content:space-between;">
+            <strong style="font-size:14px;">접수 리스트</strong>
+            <span class="chip">품목 <span id="itemCount">0</span>개</span>
+          </div>
             <div class="divider"></div>
             <div id="items" class="list"></div>
             <div style="margin-top:12px;">
@@ -174,24 +178,7 @@
             </div>
           </div>
 
-          <div class="card">
-            <strong style="font-size:14px;">추가 첨부(선택)</strong>
-            <div class="divider"></div>
-            <div class="field">
-              <label>사진/영상/영수증</label>
-              <input type="file" accept="image/*,video/*,application/pdf" multiple />
-            </div>
-            <div class="row">
-              <div class="field">
-                <label>구매처(선택)</label>
-                <input placeholder="예: 네이버/쿠팡/오프라인" />
-              </div>
-              <div class="field">
-                <label>구매일(선택)</label>
-                <input type="date" />
-              </div>
-            </div>
-          </div>
+          <div class="muted small">* 구매증빙(구매처/구매일/영수증)은 품목별로 입력합니다.</div>
         </div>
       </section>
 
@@ -202,41 +189,70 @@
       </div>
     </div>
 
-    <!-- Bottom sheet for add/edit item -->
-    <div id="sheet" class="sheet" role="dialog" aria-modal="true">
-      <div class="sheetPanel">
-        <div class="sheetHead">
-          <strong id="sheetTitle">제품 추가</strong>
-          <button id="closeSheet" class="x" type="button">✕</button>
+    <!-- Full-screen item editor -->
+    <div id="itemFull" class="full" aria-hidden="true">
+      <div class="fullPage">
+        <div class="appbar" style="position:sticky; top:0;">
+          <div class="appbarRow">
+            <button id="itemBack" class="back" type="button" aria-label="뒤로">←</button>
+            <div class="titleWrap"><h1 class="title" style="font-size:18px;">품목 정보</h1></div>
+            <div></div>
+          </div>
         </div>
-        <div class="divider"></div>
-        <div class="stack">
-          <div class="row">
-            <div class="field" style="flex:1;">
-              <label>제품명</label>
-              <input id="pName" placeholder="예: ABKO XXX" />
+
+        <div class="stack" style="margin-top:10px;">
+          <div class="card">
+            <div class="row">
+              <div class="field" style="flex:1;">
+                <label>제품명</label>
+                <input id="pName" placeholder="예: ABKO XXX" />
+              </div>
+              <div class="field" style="max-width:120px;">
+                <label>수량</label>
+                <input id="pQty" value="1" inputmode="numeric" />
+              </div>
             </div>
-            <div class="field" style="max-width:120px;">
-              <label>수량</label>
-              <input id="pQty" value="1" inputmode="numeric" />
+            <div class="field" style="margin-top:10px;">
+              <label>증상 상세</label>
+              <textarea id="pSym" placeholder="증상, 발생 조건, 재현 방법"></textarea>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label>증상 사진(선택)</label>
+              <input id="pPhoto" type="file" accept="image/*" multiple />
+              <div id="photoHint" class="hint">첨부한 사진은 리스트에서 썸네일로 표시됩니다.</div>
             </div>
           </div>
-          <div class="field">
-            <label>증상 상세</label>
-            <textarea id="pSym" placeholder="증상, 발생 조건, 재현 방법"></textarea>
+
+          <div class="card">
+            <strong style="font-size:14px;">구매증빙(선택)</strong>
+            <div class="divider"></div>
+            <div class="row">
+              <div class="field">
+                <label>구매처</label>
+                <input id="buyFrom" placeholder="예: 네이버/쿠팡/오프라인" />
+              </div>
+              <div class="field">
+                <label>구매일자</label>
+                <input id="buyDate" type="date" />
+              </div>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label>구매 영수증 첨부</label>
+              <input id="buyReceipt" type="file" accept="image/*,application/pdf" multiple />
+            </div>
           </div>
-          <div class="field">
-            <label>증상 사진(선택)</label>
-            <input id="pPhoto" type="file" accept="image/*" multiple />
+        </div>
+
+        <div class="fullCta">
+          <div class="ctaRow">
+            <button id="saveItem" class="btn btnWide primary" type="button">저장</button>
           </div>
-          <button id="saveItem" class="btn btnWide primary" type="button">리스트에 추가</button>
         </div>
       </div>
     </div>
 
     <script>
       const stages = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
-      const stepNowEl = document.getElementById('stepNow');
       const bar = document.getElementById('bar');
       const backBtn = document.getElementById('backBtn');
       const nextBtn = document.getElementById('nextBtn');
@@ -261,14 +277,20 @@
       const itemCount = document.getElementById('itemCount');
       const addItemBtn = document.getElementById('addItem');
 
-      // sheet
-      const sheet = document.getElementById('sheet');
-      const closeSheet = document.getElementById('closeSheet');
+      // full item editor
+      const itemFull = document.getElementById('itemFull');
+      const itemBack = document.getElementById('itemBack');
       const saveItem = document.getElementById('saveItem');
       const pName = document.getElementById('pName');
       const pQty = document.getElementById('pQty');
       const pSym = document.getElementById('pSym');
+      const pPhoto = document.getElementById('pPhoto');
+      const buyFrom = document.getElementById('buyFrom');
+      const buyDate = document.getElementById('buyDate');
+      const buyReceipt = document.getElementById('buyReceipt');
       let items = [];
+      let editingIndex = -1;
+      let pendingThumbs = [];
 
       let step = 1;
 
@@ -288,8 +310,6 @@
       }
 
       function setProgress(){
-        stepNowEl.textContent = String(step);
-        bar.style.width = `${(step/3)*100}%`;
         backBtn.style.visibility = (step === 1) ? 'hidden' : 'visible';
       }
 
@@ -366,8 +386,10 @@
         items.forEach((it, idx)=>{
           const el = document.createElement('div');
           el.className = 'item';
+          const thumb = (it.thumbs && it.thumbs.length) ? `<img class="thumb" src="${it.thumbs[0]}" alt="" />` : '';
           el.innerHTML = `
             <div class="itemTop">
+              ${thumb}
               <div style="flex:1;">
                 <strong>${escapeHtml(it.name)}</strong>
                 <div class="itemMeta">수량: ${escapeHtml(String(it.qty))}</div>
@@ -375,6 +397,7 @@
               </div>
             </div>
             <div class="itemBtns">
+              <button class="btn btnSmall" type="button" data-act="edit" data-idx="${idx}">수정</button>
               <button class="btn btnSmall" type="button" data-act="remove" data-idx="${idx}">삭제</button>
             </div>
           `;
@@ -392,31 +415,87 @@
         if(!btn) return;
         const act = btn.getAttribute('data-act');
         const idx = Number(btn.getAttribute('data-idx'));
+        if(act==='edit'){
+          openItemFull(idx);
+          return;
+        }
         if(act==='remove'){
           items.splice(idx,1);
           renderItems();
         }
       });
 
-      function openSheet(){
-        sheet.classList.add('show');
-        pName.value='';
-        pQty.value='1';
-        pSym.value='';
+      function openItemFull(idx=-1){
+        editingIndex = idx;
+        pendingThumbs = [];
+        if(idx >= 0){
+          const it = items[idx];
+          pName.value = it.name || '';
+          pQty.value = String(it.qty || 1);
+          pSym.value = it.symptom || '';
+          buyFrom.value = it.buyFrom || '';
+          buyDate.value = it.buyDate || '';
+          pendingThumbs = (it.thumbs || []).slice();
+        } else {
+          pName.value='';
+          pQty.value='1';
+          pSym.value='';
+          buyFrom.value='';
+          buyDate.value='';
+        }
+        // reset file inputs (mock)
+        pPhoto.value = '';
+        buyReceipt.value = '';
+        itemFull.classList.add('show');
+        itemFull.setAttribute('aria-hidden','false');
         pName.focus();
       }
-      function closeSheetFn(){ sheet.classList.remove('show'); }
-      addItemBtn.addEventListener('click', openSheet);
-      closeSheet.addEventListener('click', closeSheetFn);
-      sheet.addEventListener('click', (e)=>{ if(e.target === sheet) closeSheetFn(); });
+
+      function closeItemFull(){
+        itemFull.classList.remove('show');
+        itemFull.setAttribute('aria-hidden','true');
+      }
+
+      addItemBtn.addEventListener('click', ()=>openItemFull(-1));
+      itemBack.addEventListener('click', closeItemFull);
+
+      pPhoto.addEventListener('change', async ()=>{
+        const files = Array.from(pPhoto.files || []);
+        if(!files.length) return;
+        // Use first image as thumbnail(s)
+        const reads = files.slice(0,3).map(fileToDataUrl);
+        const urls = await Promise.all(reads);
+        pendingThumbs = urls.filter(Boolean);
+      });
+
+      function fileToDataUrl(file){
+        return new Promise((resolve)=>{
+          const r = new FileReader();
+          r.onload = ()=> resolve(String(r.result||''));
+          r.onerror = ()=> resolve('');
+          r.readAsDataURL(file);
+        });
+      }
 
       saveItem.addEventListener('click', ()=>{
         const name = pName.value.trim();
         const qty = Math.max(1, parseInt(pQty.value||'1',10) || 1);
         if(!name){ pName.classList.add('error'); pName.focus(); return; }
         pName.classList.remove('error');
-        items.push({ name, qty, symptom: pSym.value.trim() });
-        closeSheetFn();
+        const payload = {
+          name,
+          qty,
+          symptom: pSym.value.trim(),
+          thumbs: pendingThumbs.slice(),
+          buyFrom: buyFrom.value.trim(),
+          buyDate: buyDate.value,
+        };
+        if(editingIndex >= 0){
+          items[editingIndex] = payload;
+        } else {
+          items.push(payload);
+        }
+        closeItemFull();
         renderItems();
       });
 
