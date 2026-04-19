@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ABKO AS 접수</title>
     <link rel="stylesheet" href="./_style.css" />
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <style>
       :root{ --pageMax: 460px; }
       body{ background: var(--bg); }
@@ -42,8 +43,8 @@
       .ctaRow{ display:flex; gap:10px; }
       .btnWide{ width:100%; padding:15px 14px; border-radius:16px; font-weight:800; letter-spacing:-.2px; }
       .btnWide.primary{ background: var(--accent); border-color: var(--accent); color:#fff; }
-      .btnWide:disabled{ cursor:not-allowed; }
-      .btnWide.primary:disabled{ background:#e5e7eb; border-color:#e5e7eb; color:#111827; }
+      .btnWide.is-disabled{ cursor:not-allowed; }
+      .btnWide.primary.is-disabled{ background:#e5e7eb; border-color:#e5e7eb; color:#111827; }
 
       .error{ background: rgba(239,68,68,.10) !important; border-color: rgba(239,68,68,.35) !important; }
       .warn{ margin-top:6px; font-size:12px; color: var(--bad); display:none; }
@@ -122,6 +123,7 @@
               <div class="field">
                 <label class="req">휴대폰</label>
                 <input id="phone" placeholder="000-0000-0000" inputmode="tel" maxlength="13" />
+                <div id="phoneWarn" class="warn">휴대폰 번호 형식으로 입력해 주세요.</div>
               </div>
               <div class="field">
                 <label>이메일 (선택)</label>
@@ -131,13 +133,14 @@
               <div class="field">
                 <label>주소 (선택)</label>
                 <div class="row">
-                  <input id="addrBase" placeholder="주소검색" readonly />
-                  <button id="addrSearch" class="btn" type="button" style="white-space:nowrap;">주소검색</button>
-                </div>
-                <input id="addrDetail" placeholder="상세주소" style="margin-top:10px;" />
-                <div class="hint">주소를 입력하지 않으면 단순 문의만 가능합니다.</div>
+                <input id="addrBase" placeholder="주소검색" readonly />
+                <button id="addrSearch" class="btn" type="button" style="white-space:nowrap;">주소검색</button>
               </div>
+              <input id="addrDetail" placeholder="상세주소" style="margin-top:10px;" />
+              <div class="hint">주소를 입력하지 않으면 단순 문의만 가능합니다.</div>
+              <div id="addrWarn" class="warn">주소를 입력하셨다면 상세주소까지 입력해 주세요.</div>
             </div>
+          </div>
           </div>
 
           <div class="card">
@@ -190,7 +193,7 @@
       <div class="cta">
         <div class="ctaInner">
           <div class="ctaRow">
-            <button id="nextBtn" class="btn btnWide primary" type="button" disabled>다음</button>
+            <button id="nextBtn" class="btn btnWide primary is-disabled" type="button">다음</button>
           </div>
         </div>
       </div>
@@ -272,12 +275,14 @@
       // step 2
       const nameEl = document.getElementById('name');
       const phoneEl = document.getElementById('phone');
+      const phoneWarn = document.getElementById('phoneWarn');
       const emailEl = document.getElementById('email');
       const emailWarn = document.getElementById('emailWarn');
       const consentRequired = document.getElementById('consentRequired');
       const addrBase = document.getElementById('addrBase');
       const addrDetail = document.getElementById('addrDetail');
       const addrSearch = document.getElementById('addrSearch');
+      const addrWarn = document.getElementById('addrWarn');
 
       // step 3
       const itemsWrap = document.getElementById('items');
@@ -309,10 +314,30 @@
         return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
       }
       function isValidEmail(v){ if(!v) return true; return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+      function isValidPhone(v){
+        const d = digitsOnly(v);
+        return d.length === 10 || d.length === 11;
+      }
       function setEmailState(){
         const ok = isValidEmail(emailEl.value.trim());
         emailEl.classList.toggle('error', !ok);
         emailWarn.classList.toggle('show', !ok);
+        return ok;
+      }
+      function setPhoneState(){
+        const ok = isValidPhone(phoneEl.value.trim());
+        phoneEl.classList.toggle('error', !ok);
+        phoneWarn.classList.toggle('show', !ok);
+        return ok;
+      }
+
+      function setAddrDetailState(){
+        const base = (addrBase.value||'').trim();
+        const detail = (addrDetail.value||'').trim();
+        const needsDetail = !!base;
+        const ok = !needsDetail || !!detail;
+        addrDetail.classList.toggle('error', !ok);
+        addrWarn.classList.toggle('show', !ok);
         return ok;
       }
 
@@ -325,25 +350,24 @@
         step = n;
         stages.forEach((s,i)=> s.classList.toggle('active', i === (n-1)));
         setProgress();
-        updateNextState();
+        updateNextVisual();
       }
 
-      function updateNextState(){
+      function updateNextVisual(){
         if(step === 1){
           nextBtn.textContent = '다음';
-          nextBtn.disabled = !customerType;
+          nextBtn.classList.toggle('is-disabled', !customerType);
           return;
         }
         if(step === 2){
           nextBtn.textContent = '다음';
-          const okEmail = setEmailState();
-          const ok = nameEl.value.trim() && phoneEl.value.trim().length >= 12 && consentRequired.checked && okEmail;
-          nextBtn.disabled = !ok;
+          const ok = nameEl.value.trim() && isValidPhone(phoneEl.value) && consentRequired.checked && isValidEmail(emailEl.value.trim()) && setAddrDetailState();
+          nextBtn.classList.toggle('is-disabled', !ok);
           return;
         }
         if(step === 3){
           nextBtn.textContent = '접수하기';
-          nextBtn.disabled = items.length === 0;
+          nextBtn.classList.toggle('is-disabled', items.length === 0);
         }
       }
 
@@ -351,35 +375,85 @@
         customerType = t;
         typePersonal.classList.toggle('selected', t==='personal');
         typeBiz.classList.toggle('selected', t==='biz');
-        updateNextState();
+        updateNextVisual();
       }
 
       typePersonal.addEventListener('click', ()=>selectType('personal'));
       typeBiz.addEventListener('click', ()=>selectType('biz'));
 
-      phoneEl.addEventListener('input', ()=>{ phoneEl.value = formatPhone(phoneEl.value); updateNextState(); });
-      emailEl.addEventListener('input', ()=>{ setEmailState(); updateNextState(); });
-      nameEl.addEventListener('input', updateNextState);
-      consentRequired.addEventListener('change', updateNextState);
+      phoneEl.addEventListener('input', ()=>{ phoneEl.value = formatPhone(phoneEl.value); });
+      phoneEl.addEventListener('blur', ()=>{ setPhoneState(); updateNextVisual(); });
+      emailEl.addEventListener('blur', ()=>{ setEmailState(); updateNextVisual(); });
+      nameEl.addEventListener('blur', updateNextVisual);
+      nameEl.addEventListener('input', updateNextVisual);
+      consentRequired.addEventListener('change', updateNextVisual);
+      addrDetail.addEventListener('blur', ()=>{ setAddrDetailState(); updateNextVisual(); });
 
       addrSearch.addEventListener('click', ()=>{
-        // 목업: 도로명 검색 UI는 다음 단계에서 모달/리스트로 확장
-        addrBase.value = '서울특별시 강남구 테헤란로 123';
-        addrDetail.focus();
+        // Daum postcode search
+        if(!window.daum || !window.daum.Postcode){
+          addrBase.value = '주소검색 로딩 실패';
+          return;
+        }
+        new window.daum.Postcode({
+          oncomplete: function(data){
+            addrBase.value = data.roadAddress || data.address || '';
+            addrDetail.focus();
+            setAddrDetailState();
+            updateNextVisual();
+          }
+        }).open();
       });
 
       backBtn.addEventListener('click', ()=>{ if(step>1) showStep(step-1); });
-      nextBtn.addEventListener('click', ()=>{
-        if(step < 3) return showStep(step+1);
+      function focusAndScroll(el){
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        setTimeout(()=>el.focus({preventScroll:true}), 50);
+      }
 
-        // submit mock
-        const fullAddress = [addrBase.value.trim(), addrDetail.value.trim()].filter(Boolean).join(' ');
-        sessionStorage.setItem('mock_customer_type', customerType);
-        sessionStorage.setItem('mock_full_address', fullAddress);
-        const ticketNo = `CS-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;
-        sessionStorage.setItem('mock_ticket_no', ticketNo);
-        sessionStorage.setItem('mock_items', JSON.stringify(items));
-        window.location.href = './intake_steps_done.html';
+      nextBtn.addEventListener('click', ()=>{
+        // allow click even when visually disabled
+        if(step === 1){
+          if(!customerType) return;
+          return showStep(2);
+        }
+
+        if(step === 2){
+          // validate on submit attempt
+          const okName = !!nameEl.value.trim();
+          if(!okName){ nameEl.classList.add('error'); focusAndScroll(nameEl); return; }
+          nameEl.classList.remove('error');
+
+          const okPhone = setPhoneState();
+          if(!okPhone){ focusAndScroll(phoneEl); return; }
+
+          const okEmail = setEmailState();
+          if(!okEmail){ focusAndScroll(emailEl); return; }
+
+          const okAddr = setAddrDetailState();
+          if(!okAddr){ focusAndScroll(addrDetail); return; }
+
+          if(!consentRequired.checked){
+            consentRequired.scrollIntoView({behavior:'smooth', block:'center'});
+            return;
+          }
+          return showStep(3);
+        }
+
+        if(step === 3){
+          if(items.length === 0){
+            addItemBtn.scrollIntoView({behavior:'smooth', block:'center'});
+            return;
+          }
+          // submit mock
+          const fullAddress = [addrBase.value.trim(), addrDetail.value.trim()].filter(Boolean).join(' ');
+          sessionStorage.setItem('mock_customer_type', customerType);
+          sessionStorage.setItem('mock_full_address', fullAddress);
+          const ticketNo = `CS-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;
+          sessionStorage.setItem('mock_ticket_no', ticketNo);
+          sessionStorage.setItem('mock_items', JSON.stringify(items));
+          window.location.href = './intake_steps_done.html';
+        }
       });
 
       function renderItems(){
@@ -411,7 +485,7 @@
           `;
           itemsWrap.appendChild(el);
         });
-        updateNextState();
+        updateNextVisual();
       }
 
       function escapeHtml(s){
@@ -510,7 +584,7 @@
       // init
       setProgress();
       renderItems();
-      updateNextState();
+      updateNextVisual();
     </script>
   </body>
 </html>
