@@ -27,7 +27,7 @@
       .back:active{ transform: translateY(1px); }
       .titleWrap{ text-align:center; }
       .title{ margin:0; font-size:20px; letter-spacing:-.6px; font-weight:800; }
-      .progressWrap{ margin-top:0; }
+      .progressWrap{ margin-top:8px; padding: 0 0 10px; }
       .progress{ height:6px; background:#eaf0f7; border-radius:999px; overflow:hidden; border:1px solid var(--line); }
       .bar{ height:100%; width:0%; background: var(--accent); border-radius:999px; transition: width .25s ease; }
 
@@ -112,6 +112,9 @@
         <h1 class="bTitle">ABKO 고객지원</h1>
         <div></div>
       </div>
+      <div id="progressWrap" class="progressWrap" style="display:none;">
+        <div class="progress"><div id="bar" class="bar"></div></div>
+      </div>
     </div>
 
     <div class="page">
@@ -124,10 +127,6 @@
           </div>
           <div></div>
         </div>
-      </div>
-
-      <div id="progressWrap" class="progressWrap" style="display:none;">
-        <div class="progress"><div id="bar" class="bar"></div></div>
       </div>
 
       <!-- HOME (no title, no gauge) -->
