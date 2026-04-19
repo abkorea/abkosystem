@@ -16,8 +16,8 @@
       .titleWrap{ text-align:center; }
       .title{ margin:0; font-size:20px; letter-spacing:-.6px; font-weight:800; }
       .subtitle{ display:none; }
-      .progress{ display:none; }
-      .bar{ display:none; }
+      .progress{ height:6px; background:#eaf0f7; border-radius:999px; overflow:hidden; border:1px solid var(--line); }
+      .bar{ height:100%; width:0%; background: var(--accent); border-radius:999px; transition: width .25s ease; }
 
       .stage{ display:none; animation: in .22s ease; }
       .stage.active{ display:block; }
@@ -312,6 +312,7 @@
 
       function setProgress(){
         backBtn.style.visibility = (step === 1) ? 'hidden' : 'visible';
+        bar.style.width = `${(step/3)*100}%`;
       }
 
       function showStep(n){
