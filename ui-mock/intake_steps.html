@@ -89,16 +89,18 @@
       .itemMeta{ margin-top:6px; color:var(--muted); font-size:13px; line-height:1.4; }
       .itemThumbs{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
       .thumbSmall{ width:52px; height:52px; border-radius:12px; border:1px solid var(--line); object-fit:cover; background:#fff; }
-      .itemActions{ margin-left:auto; display:flex; gap:8px; }
-      .iconBtn{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+      .itemActions{ margin-left:auto; display:flex; flex-direction:column; gap:8px; }
+      .iconBtn{ width:38px; height:38px; border-radius:12px; border:none; background:#111827; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+      .iconBtn svg{ width:18px; height:18px; fill: currentColor; }
+      .iconBtn.danger{ background:#374151; }
       .iconBtn:active{ transform: translateY(1px); }
 
       /* full-screen item editor */
       .full{ position:fixed; inset:0; display:none; background: var(--bg); z-index: 50; }
       .full.show{ display:flex; flex-direction:column; }
       .full.show{ display:block; }
-      .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 28px; }
-      .fullCta{ position: sticky; bottom: 0; background: rgba(242,244,247,.92); backdrop-filter: blur(8px); padding: 12px 0 10px; }
+      .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 130px; }
+      .fullCta{ position: sticky; bottom: 0; background: transparent; padding: 12px 0 10px; }
       .thumb{ width:44px; height:44px; border-radius:12px; border:1px solid var(--line); object-fit:cover; background:#fff; }
 
       /* home 브랜드 로고 숨김 (상단 헤더로 대체) */
@@ -315,8 +317,12 @@
               </div>
             </div>
             <div class="field" style="margin-top:10px;">
-              <label>증상 상세</label>
+              <label class="req">증상 상세</label>
               <textarea id="pSym" placeholder="증상, 발생 조건, 재현 방법"></textarea>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label>시리얼 번호(선택)</label>
+              <input id="pSerial" placeholder="예: SN12345678" />
             </div>
             <div class="field" style="margin-top:10px;">
               <label>증상 사진(선택)</label>
@@ -347,7 +353,7 @@
 
         <div class="fullCta">
           <div class="ctaRow">
-            <button id="saveItem" class="btn btnWide primary" type="button">저장</button>
+            <button id="saveItem" class="btn btnWide primary is-disabled" type="button">품목 추가</button>
           </div>
         </div>
       </div>
@@ -418,6 +424,7 @@
       const pQty = document.getElementById('pQty');
       const pSym = document.getElementById('pSym');
       const pPhoto = document.getElementById('pPhoto');
+      const pSerial = document.getElementById('pSerial');
       const buyFrom = document.getElementById('buyFrom');
       const buyDate = document.getElementById('buyDate');
       const buyReceipt = document.getElementById('buyReceipt');
@@ -680,11 +687,11 @@
             ? `<div class="itemThumbs">${it.thumbs.map((t)=>`<img class="thumbSmall" src="${t}" alt="" />`).join('')}</div>`
             : '';
 
-          const leadThumb = (it.thumbs && it.thumbs.length) ? `<img class="thumb" src="${it.thumbs[0]}" alt="" />` : '';
+          const iconPencil = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.33H5v-.92l9.06-9.06.92.92L5.92 19.58zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>`;
+          const iconTrash = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2H8l1-2z"/></svg>`;
 
           el.innerHTML = `
             <div class="itemTop">
-              ${leadThumb}
               <div style="flex:1; min-width:0;">
                 <div class="itemHeaderRow">
                   <strong class="itemName">${escapeHtml(it.name)}</strong>
@@ -694,8 +701,8 @@
                 ${thumbs}
               </div>
               <div class="itemActions">
-                <button class="iconBtn" type="button" data-act="edit" data-idx="${idx}" aria-label="수정">✏️</button>
-                <button class="iconBtn" type="button" data-act="remove" data-idx="${idx}" aria-label="삭제">🗑️</button>
+                <button class="iconBtn" type="button" data-act="edit" data-idx="${idx}" aria-label="수정">${iconPencil}</button>
+                <button class="iconBtn danger" type="button" data-act="remove" data-idx="${idx}" aria-label="삭제">${iconTrash}</button>
               </div>
             </div>
           `;
@@ -731,10 +738,12 @@
           buyFrom.value = it.buyFrom || '';
           buyDate.value = it.buyDate || '';
           pendingThumbs = (it.thumbs || []).slice();
+          pSerial.value = it.serial || '';
         } else {
           pName.value='';
           pQty.value='1';
           pSym.value='';
+          pSerial.value='';
           buyFrom.value='';
           buyDate.value='';
         }
@@ -742,6 +751,7 @@
         buyReceipt.value = '';
         itemFull.classList.add('show');
         itemFull.setAttribute('aria-hidden','false');
+        validateItemForm(false);
         pName.focus();
       }
 
@@ -770,15 +780,42 @@
         });
       }
 
+      function validateItemForm(focusOnError=false){
+        const name = pName.value.trim();
+        const sym = pSym.value.trim();
+
+        let ok = true;
+        if(!name){ ok = false; pName.classList.add('error'); if(focusOnError) pName.focus(); }
+        else pName.classList.remove('error');
+
+        if(!sym){
+          ok = false;
+          pSym.classList.add('error');
+          if(focusOnError && name) pSym.focus();
+        } else {
+          pSym.classList.remove('error');
+        }
+
+        saveItem.classList.toggle('is-disabled', !ok);
+        return ok;
+      }
+
+      // live validation
+      pName.addEventListener('input', ()=>validateItemForm(false));
+      pSym.addEventListener('input', ()=>validateItemForm(false));
+      pQty.addEventListener('input', ()=>validateItemForm(false));
+
       saveItem.addEventListener('click', ()=>{
+        const ok = validateItemForm(true);
+        if(!ok) return;
+
         const name = pName.value.trim();
         const qty = Math.max(1, parseInt(pQty.value||'1',10) || 1);
-        if(!name){ pName.classList.add('error'); pName.focus(); return; }
-        pName.classList.remove('error');
         const payload = {
           name,
           qty,
           symptom: pSym.value.trim(),
+          serial: pSerial.value.trim(),
           thumbs: pendingThumbs.slice(),
           buyFrom: buyFrom.value.trim(),
           buyDate: buyDate.value,
