@@ -90,16 +90,16 @@
       .itemThumbs{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
       .thumbSmall{ width:52px; height:52px; border-radius:12px; border:1px solid var(--line); object-fit:cover; background:#fff; }
       .itemActions{ margin-left:auto; display:flex; flex-direction:column; gap:8px; }
-      .iconBtn{ width:38px; height:38px; border-radius:12px; border:none; background:#111827; color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+      .iconBtn{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; color:#374151; display:flex; align-items:center; justify-content:center; cursor:pointer; }
       .iconBtn svg{ width:18px; height:18px; fill: currentColor; }
-      .iconBtn.danger{ background:#374151; }
+      .iconBtn.danger{ color: var(--bad); }
       .iconBtn:active{ transform: translateY(1px); }
 
       /* full-screen item editor */
       .full{ position:fixed; inset:0; display:none; background: var(--bg); z-index: 50; }
       .full.show{ display:flex; flex-direction:column; }
       .full.show{ display:block; }
-      .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 130px; }
+      .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 130px; overflow-y:auto; flex:1; }
       .fullCta{ position: sticky; bottom: 0; background: transparent; padding: 12px 0 10px; }
       .thumb{ width:44px; height:44px; border-radius:12px; border:1px solid var(--line); object-fit:cover; background:#fff; }
 
