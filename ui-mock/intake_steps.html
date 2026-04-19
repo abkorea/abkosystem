@@ -73,17 +73,25 @@
       .warn{ margin-top:6px; font-size:12px; color: var(--bad); display:none; }
       .warn.show{ display:block; }
 
-      label{ font-size:13px; }
+      label{ font-size:14px; }
       label.req{ font-weight:900; color: var(--text); }
+      .hint{ font-size:13px; }
+      .muted.small{ font-size:13px; }
 
       .chip{ display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:999px; background:#fff; border:1px solid var(--line); font-size:12px; color:var(--muted); }
       .list{ display:grid; gap:10px; }
       .item{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px; box-shadow: var(--shadow); }
       .itemTop{ display:flex; gap:10px; align-items:flex-start; }
       .itemTop strong{ font-size:14px; }
-      .itemMeta{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.4; }
-      .itemBtns{ margin-top:10px; display:flex; gap:8px; }
-      .btnSmall{ padding:10px 10px; border-radius:12px; }
+      .itemHeaderRow{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+      .itemName{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .itemQty{ flex:0 0 auto; font-size:13px; color:var(--muted); font-weight:800; }
+      .itemMeta{ margin-top:6px; color:var(--muted); font-size:13px; line-height:1.4; }
+      .itemThumbs{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
+      .thumbSmall{ width:52px; height:52px; border-radius:12px; border:1px solid var(--line); object-fit:cover; background:#fff; }
+      .itemActions{ margin-left:auto; display:flex; gap:8px; }
+      .iconBtn{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+      .iconBtn:active{ transform: translateY(1px); }
 
       /* full-screen item editor */
       .full{ position:fixed; inset:0; display:none; background: var(--bg); z-index: 50; }
@@ -667,19 +675,28 @@
         items.forEach((it, idx)=>{
           const el = document.createElement('div');
           el.className = 'item';
-          const thumb = (it.thumbs && it.thumbs.length) ? `<img class="thumb" src="${it.thumbs[0]}" alt="" />` : '';
+
+          const thumbs = (it.thumbs && it.thumbs.length)
+            ? `<div class="itemThumbs">${it.thumbs.map((t)=>`<img class="thumbSmall" src="${t}" alt="" />`).join('')}</div>`
+            : '';
+
+          const leadThumb = (it.thumbs && it.thumbs.length) ? `<img class="thumb" src="${it.thumbs[0]}" alt="" />` : '';
+
           el.innerHTML = `
             <div class="itemTop">
-              ${thumb}
-              <div style="flex:1;">
-                <strong>${escapeHtml(it.name)}</strong>
-                <div class="itemMeta">수량: ${escapeHtml(String(it.qty))}</div>
+              ${leadThumb}
+              <div style="flex:1; min-width:0;">
+                <div class="itemHeaderRow">
+                  <strong class="itemName">${escapeHtml(it.name)}</strong>
+                  <span class="itemQty">${escapeHtml(String(it.qty))}개</span>
+                </div>
                 <div class="itemMeta">${escapeHtml(it.symptom || '')}</div>
+                ${thumbs}
               </div>
-            </div>
-            <div class="itemBtns">
-              <button class="btn btnSmall" type="button" data-act="edit" data-idx="${idx}">수정</button>
-              <button class="btn btnSmall" type="button" data-act="remove" data-idx="${idx}">삭제</button>
+              <div class="itemActions">
+                <button class="iconBtn" type="button" data-act="edit" data-idx="${idx}" aria-label="수정">✏️</button>
+                <button class="iconBtn" type="button" data-act="remove" data-idx="${idx}" aria-label="삭제">🗑️</button>
+              </div>
             </div>
           `;
           itemsWrap.appendChild(el);
