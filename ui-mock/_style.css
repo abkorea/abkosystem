@@ -43,7 +43,11 @@ input, select, textarea{
   outline:none;
   font-size: 15px;
 }
-input:focus, select:focus, textarea:focus{ border-color: rgba(16,183,177,.55); box-shadow: 0 0 0 4px rgba(16,183,177,.12); }
+input:focus, select:focus, textarea:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,194,179,.32); }
+
+/* error focus ring (same thickness as normal focus ring) */
+.error{ border-color: rgba(239,68,68,.45) !important; }
+.error:focus{ border-color: var(--bad) !important; box-shadow: 0 0 0 3px rgba(239,68,68,.28) !important; }
 textarea{ min-height:90px; resize:vertical; }
 .btn{
   display:inline-flex; align-items:center; justify-content:center;
