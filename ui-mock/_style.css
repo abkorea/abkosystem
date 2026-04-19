@@ -11,7 +11,7 @@
   --ok:#16a34a;
   --warn:#f59e0b;
   --bad:#ef4444;
-  --shadow: 0 8px 22px rgba(17,24,39,.08);
+  --shadow: 0 4px 12px rgba(17,24,39,.08);
 }
 *{ box-sizing:border-box; }
 body{

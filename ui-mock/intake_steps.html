@@ -8,7 +8,7 @@
     <style>
       :root{ --pageMax: 460px; }
       body{ background: var(--bg); }
-      .page{ max-width: var(--pageMax); margin: 0 auto; padding: 12px 14px 28px; }
+      .page{ max-width: var(--pageMax); margin: 0 auto; padding: 12px 14px 110px; }
       .appbar{ position: sticky; top:0; z-index: 10; background: rgba(242,244,247,.92); backdrop-filter: blur(8px); padding: 10px 0 8px; }
       .appbarRow{ display:grid; grid-template-columns: 38px 1fr 38px; align-items:center; gap:10px; }
       .back{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
@@ -31,12 +31,14 @@
       .seg button{ flex:1; padding:16px 14px; border-radius:18px; border:1px solid var(--line); background:#fff; text-align:left; box-shadow: var(--shadow); }
       .seg .k{ font-weight:800; font-size:15px; letter-spacing:-.3px; }
       .seg .d{ margin-top:6px; font-size:12px; color:var(--muted); }
-      .seg button.selected{ border-color: rgba(16,183,177,.55); box-shadow: 0 0 0 4px rgba(16,183,177,.10); }
+      .seg button.selected{ border-color: var(--accent); background: var(--accent); color:#fff; }
+      .seg button.selected .d{ color: rgba(255,255,255,.85); }
 
       .card{ padding:16px; border-radius:18px; }
       .stack{ display:grid; gap:12px; margin-top:14px; }
 
-      .cta{ position: sticky; bottom: 0; background: rgba(245,247,251,.92); backdrop-filter: blur(8px); padding: 12px 0 10px; }
+      .cta{ position: fixed; left:0; right:0; bottom: 0; background: transparent; padding: 12px 0 14px; }
+      .ctaInner{ max-width: var(--pageMax); margin: 0 auto; padding: 0 14px; }
       .ctaRow{ display:flex; gap:10px; }
       .btnWide{ width:100%; padding:15px 14px; border-radius:16px; font-weight:800; letter-spacing:-.2px; }
       .btnWide.primary{ background: var(--accent); border-color: var(--accent); color:#fff; }
@@ -184,8 +186,10 @@
       </section>
 
       <div class="cta">
-        <div class="ctaRow">
-          <button id="nextBtn" class="btn btnWide primary" type="button" disabled>다음</button>
+        <div class="ctaInner">
+          <div class="ctaRow">
+            <button id="nextBtn" class="btn btnWide primary" type="button" disabled>다음</button>
+          </div>
         </div>
       </div>
     </div>
