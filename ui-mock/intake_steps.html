@@ -87,6 +87,7 @@
 
       /* full-screen item editor */
       .full{ position:fixed; inset:0; display:none; background: var(--bg); z-index: 50; }
+      .full.show{ display:flex; flex-direction:column; }
       .full.show{ display:block; }
       .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 28px; }
       .fullCta{ position: sticky; bottom: 0; background: rgba(242,244,247,.92); backdrop-filter: blur(8px); padding: 12px 0 10px; }
@@ -344,19 +345,13 @@
       </div>
     </div>
 
-    <!-- Address search (embedded) - reserved -->
-    <div id="addrFull" class="full" aria-hidden="true">
-      <div class="fullPage">
-        <div class="appbar" style="position:sticky; top:0;">
-          <div class="appbarRow">
-            <button id="addrBack" class="back" type="button" aria-label="닫기">←</button>
-            <div class="titleWrap"><h1 class="title" style="font-size:18px;">주소검색</h1></div>
-            <div></div>
-          </div>
-        </div>
-        <div id="addrEmbed" class="card" style="padding:0; overflow:hidden;"></div>
-        <div class="muted small" style="margin-top:10px;">검색 후 선택하면 자동으로 입력됩니다.</div>
+    <!-- Address search full-screen overlay -->
+    <div id="addrFull" class="full" aria-hidden="true" style="display:none; flex-direction:column;">
+      <div style="position:sticky; top:0; z-index:10; background:rgba(242,244,247,.95); backdrop-filter:blur(8px); padding:10px 14px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:10px;">
+        <button id="addrBack" class="back" type="button" aria-label="닫기">←</button>
+        <h1 style="margin:0; font-size:17px; font-weight:800; letter-spacing:-.4px;">주소 검색</h1>
       </div>
+      <div id="addrEmbed" style="flex:1; width:100%; min-height:0;"></div>
     </div>
 
     <script>
@@ -563,38 +558,42 @@
       addrDetail.addEventListener('input', ()=>{ setAddrDetailState(); updateNextVisual(); });
 
       // address search (Daum/Kakao Postcode API)
-      function openAddrSearch(){
-        const full = document.getElementById('addrFull');
-        const embed = document.getElementById('addrEmbed');
+      const addrFull = document.getElementById('addrFull');
+      const addrEmbed = document.getElementById('addrEmbed');
 
-        full.classList.add('show');
-        full.setAttribute('aria-hidden','false');
-        embed.innerHTML = '';
+      function closeAddrSearch(){
+        addrFull.classList.remove('show');
+        addrFull.setAttribute('aria-hidden','true');
+      }
+
+      function openAddrSearch(){
+        addrEmbed.innerHTML = '';
+        addrFull.classList.add('show');
+        addrFull.setAttribute('aria-hidden','false');
+
+        // 높이를 embed div 실제 크기에 맞게 지정
+        const embedH = addrFull.offsetHeight - 60;
 
         // eslint-disable-next-line no-undef
         new daum.Postcode({
           width: '100%',
-          height: '100%',
+          height: embedH > 300 ? embedH : 500,
           oncomplete: function(data){
-            // Prefer roadAddress, fallback to jibunAddress
             const base = (data.roadAddress || data.jibunAddress || '').trim();
             addrBase.value = base;
+            addrDetail.disabled = false;
+            addrDetail.style = '';
+            closeAddrSearch();
             setAddrDetailState();
             updateNextVisual();
-
-            full.classList.remove('show');
-            full.setAttribute('aria-hidden','true');
-            setTimeout(()=>{ addrDetail.focus(); }, 50);
+            setTimeout(()=>{ addrDetail.focus(); }, 100);
           }
-        }).embed(embed);
+        }).embed(addrEmbed, { autoClose: false });
       }
 
       addrSearch.addEventListener('click', openAddrSearch);
       addrBase.addEventListener('click', openAddrSearch);
-      document.getElementById('addrBack').addEventListener('click', ()=>{
-        document.getElementById('addrFull').classList.remove('show');
-        document.getElementById('addrFull').setAttribute('aria-hidden','true');
-      });
+      document.getElementById('addrBack').addEventListener('click', closeAddrSearch);
 
       // back
       brandBack.addEventListener('click', ()=>{ if(step > 0) showStep(step - 1); });
