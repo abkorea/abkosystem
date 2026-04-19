@@ -371,7 +371,6 @@
       const progressWrap = document.getElementById('progressWrap');
       const bar = document.getElementById('bar');
       const cta = document.getElementById('cta');
-      const backBtn = document.getElementById('backBtn');
       const brandBack = document.getElementById('brandBack');
       const nextBtn = document.getElementById('nextBtn');
 
@@ -488,7 +487,6 @@
       function showStep(n){
         step = n;
         stages.forEach((s,i)=> s.classList.toggle('active', i === n));
-        backBtn.style.visibility = (step <= 1) ? 'hidden' : 'visible';
         setTopVisibility();
         setProgress();
         updateNextVisual();
@@ -575,7 +573,6 @@
       });
 
       // back
-      backBtn.addEventListener('click', ()=>{ if(step === 2) showStep(1); });
       brandBack.addEventListener('click', ()=>{ if(step > 0) showStep(step - 1); });
 
       function focusAndScroll(el){
