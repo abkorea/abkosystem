@@ -13,6 +13,10 @@
       /* page */
       .page{ max-width: var(--pageMax); margin: 0 auto; padding: 12px 14px 110px; }
 
+      /* 브랜드 고정 헤더 */
+      .brandHeader{ position:sticky; top:0; z-index:20; background: rgba(242,244,247,.95); backdrop-filter:blur(8px); text-align:center; padding:12px 0 10px; border-bottom:1px solid var(--line); }
+      .brandHeader .bTitle{ margin:0; font-size:18px; font-weight:900; letter-spacing:-.5px; }
+
       /* appbar/progress (hidden on home) */
       .appbar{ position: sticky; top:0; z-index: 10; background: rgba(242,244,247,.92); backdrop-filter: blur(8px); padding: 10px 0 8px; }
       .appbarRow{ display:grid; grid-template-columns: 38px 1fr 38px; align-items:center; gap:10px; }
@@ -85,6 +89,9 @@
       .fullCta{ position: sticky; bottom: 0; background: rgba(242,244,247,.92); backdrop-filter: blur(8px); padding: 12px 0 10px; }
       .thumb{ width:44px; height:44px; border-radius:12px; border:1px solid var(--line); object-fit:cover; background:#fff; }
 
+      /* home 브랜드 로고 숨김 (상단 헤더로 대체) */
+      .brand{ display:none !important; }
+
       /* keep home in one screen (avoid scroll) */
       @media(max-height:740px){
         .homeCard{ padding:14px; }
@@ -95,6 +102,11 @@
     </style>
   </head>
   <body>
+    <!-- 항상 고정 표시 브랜드 헤더 -->
+    <div class="brandHeader">
+      <h1 class="bTitle">ABKO 고객지원</h1>
+    </div>
+
     <div class="page">
       <!-- hidden on home -->
       <div id="appbar" class="appbar" style="display:none;">
