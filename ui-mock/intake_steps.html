@@ -9,31 +9,51 @@
     <style>
       :root{ --pageMax: 460px; }
       body{ background: var(--bg); }
+
+      /* page */
       .page{ max-width: var(--pageMax); margin: 0 auto; padding: 12px 14px 110px; }
+
+      /* appbar/progress (hidden on home) */
       .appbar{ position: sticky; top:0; z-index: 10; background: rgba(242,244,247,.92); backdrop-filter: blur(8px); padding: 10px 0 8px; }
       .appbarRow{ display:grid; grid-template-columns: 38px 1fr 38px; align-items:center; gap:10px; }
       .back{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; }
       .back:active{ transform: translateY(1px); }
       .titleWrap{ text-align:center; }
       .title{ margin:0; font-size:20px; letter-spacing:-.6px; font-weight:800; }
-      .subtitle{ display:none; }
+      .progressWrap{ margin-top:10px; }
       .progress{ height:6px; background:#eaf0f7; border-radius:999px; overflow:hidden; border:1px solid var(--line); }
       .bar{ height:100%; width:0%; background: var(--accent); border-radius:999px; transition: width .25s ease; }
 
+      /* stages */
       .stage{ display:none; animation: in .22s ease; }
       .stage.active{ display:block; }
       @keyframes in{ from{ opacity:.4; transform: translateX(12px); } to{ opacity:1; transform: translateX(0);} }
 
-      .hero{ margin-top: 10px; }
-      .hero h2{ margin:0; font-size:22px; letter-spacing:-.6px; }
-      .hero p{ margin:10px 0 0; color:var(--muted); font-size:13px; line-height:1.55; }
+      /* home */
+      .home{ height: calc(100vh - 24px); display:flex; flex-direction:column; gap:12px; padding: 12px 0 14px; }
+      .brand{ display:flex; align-items:center; justify-content:center; padding: 10px 0 6px; }
+      .brandLogo{ font-size:22px; font-weight:900; letter-spacing:-.6px; }
+      .homeGrid{ flex:1; display:flex; flex-direction:column; gap:12px; }
+      .homeCard{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow: var(--shadow); display:flex; flex-direction:column; gap:10px; }
+      .homeTitle{ margin:0; font-size:16px; font-weight:900; letter-spacing:-.4px; }
+      .homeDesc{ margin:0; font-size:13px; color:var(--muted); line-height:1.5; }
 
-      .seg{ display:flex; gap:10px; margin-top:14px; }
-      .seg button{ flex:1; padding:16px 14px; border-radius:18px; border:1px solid var(--line); background:#fff; text-align:left; box-shadow: var(--shadow); }
-      .seg .k{ font-weight:800; font-size:15px; letter-spacing:-.3px; }
+      .seg{ display:flex; gap:10px; }
+      .seg button{ flex:1; padding:14px 12px; border-radius:16px; border:1px solid var(--line); background:#fff; text-align:left; box-shadow: var(--shadow); }
+      .seg .k{ font-weight:900; font-size:14px; letter-spacing:-.3px; }
       .seg .d{ margin-top:6px; font-size:12px; color:var(--muted); }
       .seg button.selected{ border-color: var(--accent); background: var(--accent); color:#fff; }
       .seg button.selected .d{ color: rgba(255,255,255,.85); }
+
+      .btnWide{ width:100%; padding:15px 14px; border-radius:16px; font-weight:900; letter-spacing:-.2px; }
+      .btnWide.primary{ background: var(--accent); border-color: var(--accent); color:#fff; }
+      .btnWide.is-disabled{ cursor:not-allowed; }
+      .btnWide.primary.is-disabled{ background:#e5e7eb; border-color:#e5e7eb; color:#111827; }
+
+      /* common */
+      .hero{ margin-top: 10px; }
+      .hero h2{ margin:0; font-size:22px; letter-spacing:-.6px; }
+      .hero p{ margin:10px 0 0; color:var(--muted); font-size:13px; line-height:1.55; }
 
       .card{ padding:16px; border-radius:18px; }
       .stack{ display:grid; gap:12px; margin-top:14px; }
@@ -41,18 +61,13 @@
       .cta{ position: fixed; left:0; right:0; bottom: 0; background: transparent; padding: 12px 0 14px; }
       .ctaInner{ max-width: var(--pageMax); margin: 0 auto; padding: 0 14px; }
       .ctaRow{ display:flex; gap:10px; }
-      .btnWide{ width:100%; padding:15px 14px; border-radius:16px; font-weight:800; letter-spacing:-.2px; }
-      .btnWide.primary{ background: var(--accent); border-color: var(--accent); color:#fff; }
-      .btnWide.is-disabled{ cursor:not-allowed; }
-      .btnWide.primary.is-disabled{ background:#e5e7eb; border-color:#e5e7eb; color:#111827; }
 
       .error{ background: rgba(239,68,68,.10) !important; border-color: rgba(239,68,68,.35) !important; }
       .warn{ margin-top:6px; font-size:12px; color: var(--bad); display:none; }
       .warn.show{ display:block; }
 
-      /* bigger field labels for mobile */
       label{ font-size:13px; }
-      label.req{ font-weight:800; color: var(--text); }
+      label.req{ font-weight:900; color: var(--text); }
 
       .chip{ display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:999px; background:#fff; border:1px solid var(--line); font-size:12px; color:var(--muted); }
       .list{ display:grid; gap:10px; }
@@ -63,18 +78,26 @@
       .itemBtns{ margin-top:10px; display:flex; gap:8px; }
       .btnSmall{ padding:10px 10px; border-radius:12px; }
 
-
       /* full-screen item editor */
       .full{ position:fixed; inset:0; display:none; background: var(--bg); z-index: 50; }
       .full.show{ display:block; }
       .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 28px; }
       .fullCta{ position: sticky; bottom: 0; background: rgba(242,244,247,.92); backdrop-filter: blur(8px); padding: 12px 0 10px; }
       .thumb{ width:44px; height:44px; border-radius:12px; border:1px solid var(--line); object-fit:cover; background:#fff; }
+
+      /* keep home in one screen (avoid scroll) */
+      @media(max-height:740px){
+        .homeCard{ padding:14px; }
+        .homeDesc{ font-size:12px; }
+        .seg button{ padding:12px 10px; }
+        .btnWide{ padding:14px 12px; }
+      }
     </style>
   </head>
   <body>
     <div class="page">
-      <div class="appbar">
+      <!-- hidden on home -->
+      <div id="appbar" class="appbar" style="display:none;">
         <div class="appbarRow">
           <button id="backBtn" class="back" type="button" aria-label="뒤로">←</button>
           <div class="titleWrap">
@@ -84,30 +107,62 @@
         </div>
       </div>
 
-      <div style="margin-top:10px;">
+      <div id="progressWrap" class="progressWrap" style="display:none;">
         <div class="progress"><div id="bar" class="bar"></div></div>
       </div>
 
-      <!-- Step 1 -->
-      <section id="step1" class="stage active">
-        <div class="hero">
-          <h2>어떤 유형으로 접수하시나요?</h2>
-          <p>개인/사업자에 따라 필요한 정보가 달라요. 먼저 유형을 선택해 주세요.</p>
-        </div>
-        <div class="seg">
-          <button id="typePersonal" type="button">
-            <div class="k">개인</div>
-            <div class="d">개인 고객 접수</div>
-          </button>
-          <button id="typeBiz" type="button">
-            <div class="k">사업자</div>
-            <div class="d">사업자/고객사 접수</div>
-          </button>
+      <!-- HOME (no title, no gauge) -->
+      <section id="home" class="stage active">
+        <div class="home">
+          <div class="brand">
+            <div class="brandLogo">ABKO</div>
+          </div>
+
+          <div class="homeGrid">
+            <!-- 1) AS 고장접수 -->
+            <div class="homeCard">
+              <div>
+                <h2 class="homeTitle">AS 고장접수</h2>
+                <p class="homeDesc">제품 사용시 문제가 발생하셨나요?</p>
+              </div>
+
+              <div class="seg">
+                <button id="typePersonal" type="button">
+                  <div class="k">개인</div>
+                  <div class="d">개인 고객 접수</div>
+                </button>
+                <button id="typeBiz" type="button">
+                  <div class="k">사업자</div>
+                  <div class="d">사업자/고객사 접수</div>
+                </button>
+              </div>
+
+              <button id="startAsBtn" class="btn btnWide primary is-disabled" type="button">AS 접수하기</button>
+            </div>
+
+            <!-- 2) 문의 접수 -->
+            <div class="homeCard">
+              <div>
+                <h2 class="homeTitle">문의 접수</h2>
+                <p class="homeDesc">제품에 대해 문의할 내용이 있으신가요?</p>
+              </div>
+              <button id="startAskBtn" class="btn btnWide" type="button">문의 접수하기(준비중)</button>
+            </div>
+
+            <!-- 3) 진행상황 확인 -->
+            <div class="homeCard">
+              <div>
+                <h2 class="homeTitle">진행상황 확인</h2>
+                <p class="homeDesc">신청한 AS와 문의에 대한 진행상황을 확인할 수 있습니다.</p>
+              </div>
+              <button id="trackBtn" class="btn btnWide" type="button">진행상황 확인</button>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- Step 2 -->
-      <section id="step2" class="stage">
+      <!-- STEP 1: 개인정보입력 (33%) -->
+      <section id="stepInfo" class="stage">
         <div class="hero">
           <h2 id="step2Title">개인정보를 입력해 주세요</h2>
           <p id="step2Desc">연락 가능한 정보가 있어야 빠르게 처리할 수 있어요.</p>
@@ -152,14 +207,14 @@
               <div class="field">
                 <label>주소 (선택)</label>
                 <div class="row">
-                <input id="addrBase" placeholder="주소검색" readonly style="background:#f3f4f6; color:#9ca3af; cursor:not-allowed;" />
-                <button id="addrSearch" class="btn" type="button" style="white-space:nowrap; background:#f3f4f6; color:#9ca3af; border-color:#e5e7eb; cursor:not-allowed;" disabled>주소검색</button>
+                  <input id="addrBase" placeholder="주소검색" readonly style="background:#f3f4f6; color:#9ca3af; cursor:not-allowed;" />
+                  <button id="addrSearch" class="btn" type="button" style="white-space:nowrap; background:#f3f4f6; color:#9ca3af; border-color:#e5e7eb; cursor:not-allowed;" disabled>주소검색</button>
+                </div>
+                <input id="addrDetail" placeholder="상세주소" style="margin-top:10px; background:#f3f4f6; color:#9ca3af; cursor:not-allowed;" disabled />
+                <div class="hint">주소검색 기능은 추후 지원 예정입니다.</div>
+                <div id="addrWarn" class="warn">주소를 입력하셨다면 상세주소까지 입력해 주세요.</div>
               </div>
-              <input id="addrDetail" placeholder="상세주소" style="margin-top:10px; background:#f3f4f6; color:#9ca3af; cursor:not-allowed;" disabled />
-              <div class="hint">주소검색 기능은 추후 지원 예정입니다.</div>
-              <div id="addrWarn" class="warn">주소를 입력하셨다면 상세주소까지 입력해 주세요.</div>
             </div>
-          </div>
           </div>
 
           <div class="card">
@@ -168,7 +223,7 @@
             <label style="display:flex; gap:10px; align-items:flex-start;">
               <input id="consentRequired" type="checkbox" style="margin-top:2px;" />
               <span>
-                <div style="font-weight:800;">(필수) 개인정보 수집/이용 동의</div>
+                <div style="font-weight:900;">(필수) 개인정보 수집/이용 동의</div>
                 <div class="muted small">접수 처리 및 안내를 위해 필요합니다.</div>
               </span>
             </label>
@@ -185,8 +240,8 @@
         </div>
       </section>
 
-      <!-- Step 3 -->
-      <section id="step3" class="stage">
+      <!-- STEP 2: 품목리스트 (66%) -->
+      <section id="stepItems" class="stage">
         <div class="hero">
           <h2>제품/증상 내용을 추가해 주세요</h2>
           <p>여러 제품을 한 번에 접수할 수 있어요.</p>
@@ -194,10 +249,10 @@
 
         <div class="stack">
           <div class="card">
-          <div class="row" style="align-items:center; justify-content:space-between;">
-            <strong style="font-size:14px;">접수 리스트</strong>
-            <span class="chip">품목 <span id="itemCount">0</span>개</span>
-          </div>
+            <div class="row" style="align-items:center; justify-content:space-between;">
+              <strong style="font-size:14px;">접수 리스트</strong>
+              <span class="chip">품목 <span id="itemCount">0</span>개</span>
+            </div>
             <div class="divider"></div>
             <div id="items" class="list"></div>
             <div style="margin-top:12px;">
@@ -209,7 +264,8 @@
         </div>
       </section>
 
-      <div class="cta">
+      <!-- CTA (hidden on home) -->
+      <div id="cta" class="cta" style="display:none;">
         <div class="ctaInner">
           <div class="ctaRow">
             <button id="nextBtn" class="btn btnWide primary is-disabled" type="button">다음</button>
@@ -280,7 +336,7 @@
       </div>
     </div>
 
-    <!-- Address search (embedded) -->
+    <!-- Address search (embedded) - reserved -->
     <div id="addrFull" class="full" aria-hidden="true">
       <div class="fullPage">
         <div class="appbar" style="position:sticky; top:0;">
@@ -296,17 +352,28 @@
     </div>
 
     <script>
-      const stages = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
+      // stages
+      const stHome = document.getElementById('home');
+      const stInfo = document.getElementById('stepInfo');
+      const stItems = document.getElementById('stepItems');
+      const stages = [stHome, stInfo, stItems];
+
+      const appbar = document.getElementById('appbar');
+      const progressWrap = document.getElementById('progressWrap');
       const bar = document.getElementById('bar');
+      const cta = document.getElementById('cta');
       const backBtn = document.getElementById('backBtn');
       const nextBtn = document.getElementById('nextBtn');
 
-      // step 1
+      // home: type select
       const typePersonal = document.getElementById('typePersonal');
       const typeBiz = document.getElementById('typeBiz');
+      const startAsBtn = document.getElementById('startAsBtn');
+      const startAskBtn = document.getElementById('startAskBtn');
+      const trackBtn = document.getElementById('trackBtn');
       let customerType = '';
 
-      // step 2
+      // info
       const nameEl = document.getElementById('name');
       const phoneEl = document.getElementById('phone');
       const phoneWarn = document.getElementById('phoneWarn');
@@ -318,7 +385,16 @@
       const addrSearch = document.getElementById('addrSearch');
       const addrWarn = document.getElementById('addrWarn');
 
-      // step 3
+      // biz fields
+      const bizFields = document.getElementById('bizFields');
+      const companyName = document.getElementById('companyName');
+      const bizNo = document.getElementById('bizNo');
+      const bizNoWarn = document.getElementById('bizNoWarn');
+      const bizContact = document.getElementById('bizContact');
+      const step2Title = document.getElementById('step2Title');
+      const step2Desc = document.getElementById('step2Desc');
+
+      // items
       const itemsWrap = document.getElementById('items');
       const itemCount = document.getElementById('itemCount');
       const addItemBtn = document.getElementById('addItem');
@@ -334,20 +410,13 @@
       const buyFrom = document.getElementById('buyFrom');
       const buyDate = document.getElementById('buyDate');
       const buyReceipt = document.getElementById('buyReceipt');
+
       let items = [];
       let editingIndex = -1;
       let pendingThumbs = [];
 
-      let step = 1;
-
-      // biz fields
-      const bizFields = document.getElementById('bizFields');
-      const companyName = document.getElementById('companyName');
-      const bizNo = document.getElementById('bizNo');
-      const bizNoWarn = document.getElementById('bizNoWarn');
-      const bizContact = document.getElementById('bizContact');
-      const step2Title = document.getElementById('step2Title');
-      const step2Desc = document.getElementById('step2Desc');
+      // step index: 0=home, 1=info, 2=items
+      let step = 0;
 
       function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
       function formatPhone(raw){
@@ -384,27 +453,43 @@
         return ok;
       }
 
+      function formatBizNo(raw){
+        const d = digitsOnly(raw).slice(0,10);
+        if(d.length <= 3) return d;
+        if(d.length <= 5) return `${d.slice(0,3)}-${d.slice(3)}`;
+        return `${d.slice(0,3)}-${d.slice(3,5)}-${d.slice(5)}`;
+      }
+      function isValidBizNo(v){ return digitsOnly(v).length === 10; }
+
       function setProgress(){
-        backBtn.style.visibility = (step === 1) ? 'hidden' : 'visible';
-        // step1(유형선택)은 게이지 0%, step2=50%, step3=100%
-        const pct = step === 1 ? 0 : ((step - 1) / 2) * 100;
+        // info=33%, items=66%
+        const pct = step === 1 ? 33 : step === 2 ? 66 : 0;
         bar.style.width = `${pct}%`;
+      }
+
+      function setTopVisibility(){
+        const isHome = step === 0;
+        appbar.style.display = isHome ? 'none' : 'block';
+        progressWrap.style.display = isHome ? 'none' : 'block';
+        cta.style.display = isHome ? 'none' : 'block';
       }
 
       function showStep(n){
         step = n;
-        stages.forEach((s,i)=> s.classList.toggle('active', i === (n-1)));
+        stages.forEach((s,i)=> s.classList.toggle('active', i === n));
+        backBtn.style.visibility = (step <= 1) ? 'hidden' : 'visible';
+        setTopVisibility();
         setProgress();
         updateNextVisual();
+        window.scrollTo({top:0, behavior:'instant'});
+      }
+
+      function updateHomeAsBtn(){
+        startAsBtn.classList.toggle('is-disabled', !customerType);
       }
 
       function updateNextVisual(){
         if(step === 1){
-          nextBtn.textContent = '다음';
-          nextBtn.classList.toggle('is-disabled', !customerType);
-          return;
-        }
-        if(step === 2){
           nextBtn.textContent = '다음';
           const addrOk = setAddrDetailState();
           let ok = nameEl.value.trim() && isValidPhone(phoneEl.value) && consentRequired.checked && isValidEmail(emailEl.value.trim()) && addrOk;
@@ -414,34 +499,42 @@
           nextBtn.classList.toggle('is-disabled', !ok);
           return;
         }
-        if(step === 3){
+        if(step === 2){
           nextBtn.textContent = '접수하기';
           nextBtn.classList.toggle('is-disabled', items.length === 0);
         }
       }
 
-      function formatBizNo(raw){
-        const d = digitsOnly(raw).slice(0,10);
-        if(d.length <= 3) return d;
-        if(d.length <= 5) return `${d.slice(0,3)}-${d.slice(3)}`;
-        return `${d.slice(0,3)}-${d.slice(3,5)}-${d.slice(5)}`;
-      }
-      function isValidBizNo(v){ return digitsOnly(v).length === 10; }
-
       function selectType(t){
         customerType = t;
         typePersonal.classList.toggle('selected', t==='personal');
         typeBiz.classList.toggle('selected', t==='biz');
+        updateHomeAsBtn();
+
         const isBiz = t === 'biz';
         bizFields.style.display = isBiz ? 'block' : 'none';
         step2Title.textContent = isBiz ? '사업자 정보를 입력해 주세요' : '개인정보를 입력해 주세요';
         step2Desc.textContent = isBiz ? '회사명·사업자번호·담당자 정보가 필요합니다.' : '연락 가능한 정보가 있어야 빠르게 처리할 수 있어요.';
-        updateNextVisual();
       }
 
       typePersonal.addEventListener('click', ()=>selectType('personal'));
       typeBiz.addEventListener('click', ()=>selectType('biz'));
 
+      startAsBtn.addEventListener('click', ()=>{
+        if(!customerType) return;
+        // go to info step
+        showStep(1);
+      });
+
+      startAskBtn.addEventListener('click', ()=>{
+        alert('문의 접수는 준비 중입니다.');
+      });
+
+      trackBtn.addEventListener('click', ()=>{
+        alert('진행상황 확인 화면은 준비 중입니다.');
+      });
+
+      // info events
       bizNo.addEventListener('input', ()=>{ bizNo.value = formatBizNo(bizNo.value); });
       bizNo.addEventListener('blur', ()=>{
         const ok = isValidBizNo(bizNo.value);
@@ -461,47 +554,26 @@
       addrDetail.addEventListener('blur', ()=>{ setAddrDetailState(); updateNextVisual(); });
       addrDetail.addEventListener('input', ()=>{ setAddrDetailState(); updateNextVisual(); });
 
+      // reserved address search
       addrSearch.addEventListener('click', ()=>{
-        // Daum postcode search (embed 방식: 페이지 이동/팝업 이슈 방지)
-        if(!window.daum || !window.daum.Postcode){
-          addrBase.value = '주소검색 로딩 실패';
-          return;
-        }
-        addrFull.classList.add('show');
-        addrFull.setAttribute('aria-hidden','false');
-        addrEmbed.innerHTML = '';
-        const postcode = new window.daum.Postcode({
-          oncomplete: function(data){
-            addrBase.value = data.roadAddress || data.address || '';
-            addrFull.classList.remove('show');
-            addrFull.setAttribute('aria-hidden','true');
-            addrDetail.focus();
-            setAddrDetailState();
-            updateNextVisual();
-          }
-        });
-        postcode.embed(addrEmbed);
+        // disabled currently
+      });
+      document.getElementById('addrBack').addEventListener('click', ()=>{
+        document.getElementById('addrFull').classList.remove('show');
+        document.getElementById('addrFull').setAttribute('aria-hidden','true');
       });
 
-      addrBack.addEventListener('click', ()=>{
-        addrFull.classList.remove('show');
-        addrFull.setAttribute('aria-hidden','true');
-      });
+      // back
+      backBtn.addEventListener('click', ()=>{ if(step === 2) showStep(1); });
 
-      backBtn.addEventListener('click', ()=>{ if(step>1) showStep(step-1); });
       function focusAndScroll(el){
         el.scrollIntoView({behavior:'smooth', block:'center'});
         setTimeout(()=>el.focus({preventScroll:true}), 50);
       }
 
+      // CTA next
       nextBtn.addEventListener('click', ()=>{
-        // allow click even when visually disabled
         if(step === 1){
-          if(!customerType) return;
-          return showStep(2);
-        }
-
-        if(step === 2){
           // validate on submit attempt
           if(customerType === 'biz'){
             if(!companyName.value.trim()){ companyName.classList.add('error'); focusAndScroll(companyName); return; }
@@ -531,15 +603,15 @@
             consentRequired.scrollIntoView({behavior:'smooth', block:'center'});
             return;
           }
-          return showStep(3);
+
+          return showStep(2);
         }
 
-        if(step === 3){
+        if(step === 2){
           if(items.length === 0){
             addItemBtn.scrollIntoView({behavior:'smooth', block:'center'});
             return;
           }
-          // submit mock
           const fullAddress = [addrBase.value.trim(), addrDetail.value.trim()].filter(Boolean).join(' ');
           sessionStorage.setItem('mock_customer_type', customerType);
           sessionStorage.setItem('mock_full_address', fullAddress);
@@ -550,6 +622,7 @@
         }
       });
 
+      // items rendering
       function renderItems(){
         itemCount.textContent = String(items.length);
         itemsWrap.innerHTML = '';
@@ -591,10 +664,7 @@
         if(!btn) return;
         const act = btn.getAttribute('data-act');
         const idx = Number(btn.getAttribute('data-idx'));
-        if(act==='edit'){
-          openItemFull(idx);
-          return;
-        }
+        if(act==='edit') return openItemFull(idx);
         if(act==='remove'){
           items.splice(idx,1);
           renderItems();
@@ -619,7 +689,6 @@
           buyFrom.value='';
           buyDate.value='';
         }
-        // reset file inputs (mock)
         pPhoto.value = '';
         buyReceipt.value = '';
         itemFull.classList.add('show');
@@ -638,7 +707,6 @@
       pPhoto.addEventListener('change', async ()=>{
         const files = Array.from(pPhoto.files || []);
         if(!files.length) return;
-        // Use first image as thumbnail(s)
         const reads = files.slice(0,3).map(fileToDataUrl);
         const urls = await Promise.all(reads);
         pendingThumbs = urls.filter(Boolean);
@@ -666,19 +734,16 @@
           buyFrom: buyFrom.value.trim(),
           buyDate: buyDate.value,
         };
-        if(editingIndex >= 0){
-          items[editingIndex] = payload;
-        } else {
-          items.push(payload);
-        }
+        if(editingIndex >= 0) items[editingIndex] = payload;
+        else items.push(payload);
         closeItemFull();
         renderItems();
       });
 
       // init
-      setProgress();
+      updateHomeAsBtn();
+      setTopVisibility();
       renderItems();
-      updateNextVisual();
     </script>
   </body>
 </html>
