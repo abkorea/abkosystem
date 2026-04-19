@@ -261,6 +261,21 @@
       </div>
     </div>
 
+    <!-- Address search (embedded) -->
+    <div id="addrFull" class="full" aria-hidden="true">
+      <div class="fullPage">
+        <div class="appbar" style="position:sticky; top:0;">
+          <div class="appbarRow">
+            <button id="addrBack" class="back" type="button" aria-label="닫기">←</button>
+            <div class="titleWrap"><h1 class="title" style="font-size:18px;">주소검색</h1></div>
+            <div></div>
+          </div>
+        </div>
+        <div id="addrEmbed" class="card" style="padding:0; overflow:hidden;"></div>
+        <div class="muted small" style="margin-top:10px;">검색 후 선택하면 자동으로 입력됩니다.</div>
+      </div>
+    </div>
+
     <script>
       const stages = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
       const bar = document.getElementById('bar');
@@ -390,19 +405,30 @@
       addrDetail.addEventListener('blur', ()=>{ setAddrDetailState(); updateNextVisual(); });
 
       addrSearch.addEventListener('click', ()=>{
-        // Daum postcode search
+        // Daum postcode search (embed 방식: 페이지 이동/팝업 이슈 방지)
         if(!window.daum || !window.daum.Postcode){
           addrBase.value = '주소검색 로딩 실패';
           return;
         }
-        new window.daum.Postcode({
+        addrFull.classList.add('show');
+        addrFull.setAttribute('aria-hidden','false');
+        addrEmbed.innerHTML = '';
+        const postcode = new window.daum.Postcode({
           oncomplete: function(data){
             addrBase.value = data.roadAddress || data.address || '';
+            addrFull.classList.remove('show');
+            addrFull.setAttribute('aria-hidden','true');
             addrDetail.focus();
             setAddrDetailState();
             updateNextVisual();
           }
-        }).open();
+        });
+        postcode.embed(addrEmbed);
+      });
+
+      addrBack.addEventListener('click', ()=>{
+        addrFull.classList.remove('show');
+        addrFull.setAttribute('aria-hidden','true');
       });
 
       backBtn.addEventListener('click', ()=>{ if(step>1) showStep(step-1); });
@@ -588,3 +614,7 @@
     </script>
   </body>
 </html>
+      // address full screen
+      const addrFull = document.getElementById('addrFull');
+      const addrBack = document.getElementById('addrBack');
+      const addrEmbed = document.getElementById('addrEmbed');
