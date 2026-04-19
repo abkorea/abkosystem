@@ -109,11 +109,30 @@
       <!-- Step 2 -->
       <section id="step2" class="stage">
         <div class="hero">
-          <h2>개인정보를 입력해 주세요</h2>
-          <p>연락 가능한 정보가 있어야 빠르게 처리할 수 있어요.</p>
+          <h2 id="step2Title">개인정보를 입력해 주세요</h2>
+          <p id="step2Desc">연락 가능한 정보가 있어야 빠르게 처리할 수 있어요.</p>
         </div>
 
         <div class="stack">
+          <!-- 사업자 전용 필드 -->
+          <div id="bizFields" class="card" style="display:none;">
+            <div class="stack">
+              <div class="field">
+                <label class="req">회사명</label>
+                <input id="companyName" placeholder="(주)앱코" />
+              </div>
+              <div class="field">
+                <label class="req">사업자번호</label>
+                <input id="bizNo" placeholder="000-00-00000" inputmode="numeric" maxlength="12" />
+                <div id="bizNoWarn" class="warn">사업자번호 10자리를 입력해 주세요.</div>
+              </div>
+              <div class="field">
+                <label class="req">담당자명</label>
+                <input id="bizContact" placeholder="홍길동" />
+              </div>
+            </div>
+          </div>
+
           <div class="card">
             <div class="stack">
               <div class="field">
@@ -321,6 +340,15 @@
 
       let step = 1;
 
+      // biz fields
+      const bizFields = document.getElementById('bizFields');
+      const companyName = document.getElementById('companyName');
+      const bizNo = document.getElementById('bizNo');
+      const bizNoWarn = document.getElementById('bizNoWarn');
+      const bizContact = document.getElementById('bizContact');
+      const step2Title = document.getElementById('step2Title');
+      const step2Desc = document.getElementById('step2Desc');
+
       function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
       function formatPhone(raw){
         const d = digitsOnly(raw).slice(0,11);
@@ -376,7 +404,11 @@
         }
         if(step === 2){
           nextBtn.textContent = '다음';
-          const ok = nameEl.value.trim() && isValidPhone(phoneEl.value) && consentRequired.checked && isValidEmail(emailEl.value.trim()) && setAddrDetailState();
+          const addrOk = setAddrDetailState();
+          let ok = nameEl.value.trim() && isValidPhone(phoneEl.value) && consentRequired.checked && isValidEmail(emailEl.value.trim()) && addrOk;
+          if(customerType === 'biz'){
+            ok = ok && companyName.value.trim() && isValidBizNo(bizNo.value) && bizContact.value.trim();
+          }
           nextBtn.classList.toggle('is-disabled', !ok);
           return;
         }
@@ -386,23 +418,46 @@
         }
       }
 
+      function formatBizNo(raw){
+        const d = digitsOnly(raw).slice(0,10);
+        if(d.length <= 3) return d;
+        if(d.length <= 5) return `${d.slice(0,3)}-${d.slice(3)}`;
+        return `${d.slice(0,3)}-${d.slice(3,5)}-${d.slice(5)}`;
+      }
+      function isValidBizNo(v){ return digitsOnly(v).length === 10; }
+
       function selectType(t){
         customerType = t;
         typePersonal.classList.toggle('selected', t==='personal');
         typeBiz.classList.toggle('selected', t==='biz');
+        const isBiz = t === 'biz';
+        bizFields.style.display = isBiz ? 'block' : 'none';
+        step2Title.textContent = isBiz ? '사업자 정보를 입력해 주세요' : '개인정보를 입력해 주세요';
+        step2Desc.textContent = isBiz ? '회사명·사업자번호·담당자 정보가 필요합니다.' : '연락 가능한 정보가 있어야 빠르게 처리할 수 있어요.';
         updateNextVisual();
       }
 
       typePersonal.addEventListener('click', ()=>selectType('personal'));
       typeBiz.addEventListener('click', ()=>selectType('biz'));
 
+      bizNo.addEventListener('input', ()=>{ bizNo.value = formatBizNo(bizNo.value); });
+      bizNo.addEventListener('blur', ()=>{
+        const ok = isValidBizNo(bizNo.value);
+        bizNo.classList.toggle('error', !ok);
+        bizNoWarn.classList.toggle('show', !ok);
+        updateNextVisual();
+      });
+      companyName.addEventListener('input', updateNextVisual);
+      bizContact.addEventListener('input', updateNextVisual);
+
       phoneEl.addEventListener('input', ()=>{ phoneEl.value = formatPhone(phoneEl.value); });
       phoneEl.addEventListener('blur', ()=>{ setPhoneState(); updateNextVisual(); });
       emailEl.addEventListener('blur', ()=>{ setEmailState(); updateNextVisual(); });
       nameEl.addEventListener('blur', updateNextVisual);
-      nameEl.addEventListener('input', updateNextVisual);
+      nameEl.addEventListener('input', ()=>{ nameEl.classList.remove('error'); updateNextVisual(); });
       consentRequired.addEventListener('change', updateNextVisual);
       addrDetail.addEventListener('blur', ()=>{ setAddrDetailState(); updateNextVisual(); });
+      addrDetail.addEventListener('input', ()=>{ setAddrDetailState(); updateNextVisual(); });
 
       addrSearch.addEventListener('click', ()=>{
         // Daum postcode search (embed 방식: 페이지 이동/팝업 이슈 방지)
@@ -446,6 +501,17 @@
 
         if(step === 2){
           // validate on submit attempt
+          if(customerType === 'biz'){
+            if(!companyName.value.trim()){ companyName.classList.add('error'); focusAndScroll(companyName); return; }
+            companyName.classList.remove('error');
+            if(!isValidBizNo(bizNo.value)){
+              bizNo.classList.add('error'); bizNoWarn.classList.add('show'); focusAndScroll(bizNo); return;
+            }
+            bizNo.classList.remove('error'); bizNoWarn.classList.remove('show');
+            if(!bizContact.value.trim()){ bizContact.classList.add('error'); focusAndScroll(bizContact); return; }
+            bizContact.classList.remove('error');
+          }
+
           const okName = !!nameEl.value.trim();
           if(!okName){ nameEl.classList.add('error'); focusAndScroll(nameEl); return; }
           nameEl.classList.remove('error');

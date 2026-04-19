@@ -84,3 +84,13 @@ textarea{ min-height:90px; resize:vertical; }
 .section-head{ margin: 14px 2px 8px; }
 .section-head h2{ margin:0; font-size:14px; letter-spacing:-.2px; }
 .section-head p{ margin:6px 0 0; color:var(--muted); font-size:12px; }
+
+/* hint text */
+.hint{ font-size:12px; color:var(--muted); margin-top:4px; }
+
+/* mobile table scroll wrapper */
+.table-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:14px; }
+.table-wrap .table{ border-radius:0; }
+
+/* note */
+.note{ display:block; font-size:12px; color:var(--muted); margin-top:8px; }
