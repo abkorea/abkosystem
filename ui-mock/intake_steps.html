@@ -386,7 +386,9 @@
 
       function setProgress(){
         backBtn.style.visibility = (step === 1) ? 'hidden' : 'visible';
-        bar.style.width = `${(step/3)*100}%`;
+        // step1(유형선택)은 게이지 0%, step2=50%, step3=100%
+        const pct = step === 1 ? 0 : ((step - 1) / 2) * 100;
+        bar.style.width = `${pct}%`;
       }
 
       function showStep(n){
