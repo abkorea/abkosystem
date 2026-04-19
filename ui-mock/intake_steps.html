@@ -11,7 +11,7 @@
       body{ background: var(--bg); }
 
       /* page */
-      .page{ max-width: var(--pageMax); margin: 0 auto; padding: 12px 14px 110px; }
+      .page{ max-width: var(--pageMax); margin: 0 auto; padding: 0 14px 110px; }
 
       /* 브랜드 고정 헤더 */
       .brandHeader{ position:sticky; top:0; z-index:20; background: rgba(242,244,247,.95); backdrop-filter:blur(8px); padding:12px 0 0; }
@@ -118,16 +118,7 @@
     </div>
 
     <div class="page">
-      <!-- hidden on home -->
-      <div id="appbar" class="appbar" style="display:none;">
-        <div class="appbarRow">
-          <button id="backBtn" class="back" type="button" aria-label="뒤로">←</button>
-          <div class="titleWrap">
-            <h1 id="appTitle" class="title">ABKO 고객지원</h1>
-          </div>
-          <div></div>
-        </div>
-      </div>
+
 
       <!-- HOME (no title, no gauge) -->
       <section id="home" class="stage active">
@@ -376,7 +367,7 @@
       const stItems = document.getElementById('stepItems');
       const stages = [stHome, stInfo, stItems];
 
-      const appbar = document.getElementById('appbar');
+
       const progressWrap = document.getElementById('progressWrap');
       const bar = document.getElementById('bar');
       const cta = document.getElementById('cta');
@@ -488,7 +479,7 @@
 
       function setTopVisibility(){
         const isHome = step === 0;
-        appbar.style.display = isHome ? 'none' : 'block';
+
         progressWrap.style.display = isHome ? 'none' : 'block';
         cta.style.display = isHome ? 'none' : 'block';
         brandBack.style.visibility = isHome ? 'hidden' : 'visible';
