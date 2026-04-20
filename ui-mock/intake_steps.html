@@ -98,8 +98,10 @@
       /* full-screen item editor */
       .full{ position:fixed; inset:0; display:none; background: var(--bg); z-index: 50; }
       .full.show{ display:flex; flex-direction:column; }
+      /* iOS/모바일 스크롤 안정화: 품목정보(full) 자체를 스크롤 컨테이너로 */
+      #itemFull.show{ overflow-y:auto; -webkit-overflow-scrolling:touch; }
       .full.show{ display:block; }
-      .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 130px; overflow-y:auto; flex:1; }
+      .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 130px; }
       .fullCta{ position: sticky; bottom: 0; background: transparent; padding: 12px 0 10px; }
       .thumb{ width:44px; height:44px; border-radius:12px; border:1px solid var(--line); object-fit:cover; background:#fff; }
 
