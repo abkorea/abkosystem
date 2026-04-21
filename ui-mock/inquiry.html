@@ -87,7 +87,10 @@
         <div class="card">
           <div class="field">
             <label class="req">연락처</label>
-            <input id="inqPhone" type="tel" inputmode="numeric" placeholder="010-0000-0000" />
+            <div style="display:flex; gap:8px; align-items:center;">
+              <span style="padding:10px 12px; background:#f3f4f6; border:1px solid var(--line); border-radius:10px; font-size:15px; font-weight:700; white-space:nowrap; color:var(--text);">010</span>
+              <input id="inqPhone" type="tel" inputmode="numeric" placeholder="0000-0000" maxlength="9" style="flex:1;" />
+            </div>
             <div id="phoneWarn" class="warn">올바른 연락처를 입력해 주세요.</div>
           </div>
         </div>
@@ -158,14 +161,12 @@
 
       function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
       function formatPhone(raw){
-        const d = digitsOnly(raw).slice(0,11);
-        if(d.length <= 3) return d;
-        if(d.length <= 7) return `${d.slice(0,3)}-${d.slice(3)}`;
-        return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+        const d = digitsOnly(raw).slice(0,8);
+        if(d.length <= 4) return d;
+        return `${d.slice(0,4)}-${d.slice(4)}`;
       }
       function isValidPhone(v){
-        const d = digitsOnly(v);
-        return d.length === 10 || d.length === 11;
+        return digitsOnly(v).length === 8;
       }
 
       function isValidEmail(v){
