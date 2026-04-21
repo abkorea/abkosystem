@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ABKO 고객지원 - 현황 확인</title>
+    <link rel="stylesheet" href="./_style.css" />
+    <style>
+      :root{ --pageMax: 460px; }
+      body{ background: var(--bg); }
+
+      .page{ max-width: var(--pageMax); margin: 0 auto; padding: 0 14px 40px; }
+
+      /* 브랜드 고정 헤더 (AS 접수 스타일) */
+      .brandHeader{ position:sticky; top:0; z-index:20; background: rgba(242,244,247,.95); backdrop-filter:blur(8px); padding:12px 0 0; }
+      .brandHeaderRow{ display:grid; grid-template-columns:38px 1fr 38px; align-items:center; padding:0 14px; }
+      .brandHeader .bTitle{ margin:0; font-size:18px; font-weight:900; letter-spacing:-.5px; text-align:center; }
+      .back{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; }
+      .back:active{ transform:translateY(1px); }
+
+      .progressWrap{ margin-top:8px; padding: 0 14px 10px; }
+      .progress{ height:6px; background:#eaf0f7; border-radius:999px; overflow:hidden; border:1px solid var(--line); }
+      .bar{ height:100%; width:0%; background: var(--accent); border-radius:999px; transition: width .25s ease; }
+
+      .stage{ display:none; }
+      .stage.active{ display:block; }
+
+      label{ font-size:14px; }
+      label.req{ font-weight:900; color:var(--text); }
+
+      .card{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow: var(--shadow); }
+      .stack{ display:grid; gap:12px; margin-top:14px; }
+
+      .inline{ display:flex; gap:10px; align-items:center; }
+      .prefix{ padding:10px 12px; background:#f3f4f6; border:1px solid var(--line); border-radius:10px; font-size:15px; font-weight:700; white-space:nowrap; color:var(--text); }
+      .inline input{ flex:1; }
+
+      .btnSquare{ width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; }
+
+      .spinner{ width:18px; height:18px; border:2px solid rgba(17,24,39,.18); border-top-color: rgba(17,24,39,.55); border-radius:999px; animation: spin .9s linear infinite; }
+      @keyframes spin{ to{ transform:rotate(360deg);} }
+
+      .ticketBtns{ display:flex; gap:8px; flex-wrap:wrap; }
+      .ticketBtn{ display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:14px; border:1px solid var(--line); background:#fff; cursor:pointer; box-shadow: var(--shadow); }
+      .ticketBtn strong{ font-size:13px; }
+      .ticketBtn span{ font-size:12px; color:var(--muted); }
+
+      /* detail 상단 티켓 탭(가로 스크롤) */
+      .tabs{ display:flex; gap:8px; overflow-x:auto; padding: 0 14px 10px; -webkit-overflow-scrolling:touch; }
+      .tabs::-webkit-scrollbar{ display:none; }
+      .tab{ flex:0 0 auto; padding:10px 12px; border-radius:14px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+      .tab.active{ border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,194,179,.15); }
+      .tab strong{ display:block; font-size:13px; }
+      .tab span{ display:block; margin-top:2px; font-size:12px; color:var(--muted); }
+
+      .kv{ display:grid; gap:10px; }
+      .kvRow{ display:grid; grid-template-columns: 92px 1fr; gap:10px; }
+      .k{ color:var(--muted); font-size:12px; }
+      .v{ font-size:14px; font-weight:700; }
+
+      .items{ margin-top:12px; display:grid; gap:10px; }
+      .it{ border:1px solid var(--line); border-radius:14px; padding:12px; background:#fff; }
+      .itTop{ display:flex; justify-content:space-between; gap:10px; }
+      .itTop strong{ font-size:14px; }
+      .itTop span{ font-size:13px; color:var(--muted); font-weight:800; }
+      .itSym{ margin-top:6px; color:var(--muted); font-size:13px; line-height:1.45; }
+
+      .empty{ margin-top:10px; color:var(--muted); font-size:13px; }
+    </style>
+  </head>
+  <body>
+    <div class="brandHeader">
+      <div class="brandHeaderRow">
+        <button class="back" type="button" onclick="history.back()" aria-label="뒤로">←</button>
+        <h1 class="bTitle">ABKO 고객지원</h1>
+        <div></div>
+      </div>
+      <div class="progressWrap">
+        <div class="progress"><div id="bar" class="bar"></div></div>
+      </div>
+    </div>
+
+    <!-- tabs row (detail only) -->
+    <div id="tabs" class="tabs" style="display:none;"></div>
+
+    <div class="page">
+      <!-- step 1: phone -->
+      <section id="stPhone" class="stage active">
+        <div class="stack">
+          <div class="card">
+            <div class="kv">
+              <div>
+                <div style="font-size:18px; font-weight:900; letter-spacing:-.5px;">현황 확인</div>
+                <div class="muted" style="margin-top:6px; font-size:13px;">휴대폰 번호로 진행 중인 접수 건을 조회합니다. (개인정보 보호를 위해 일부 정보는 마스킹됩니다)</div>
+              </div>
+
+              <div class="field" style="margin-top:6px;">
+                <label class="req">휴대폰</label>
+                <div class="inline">
+                  <span class="prefix">010</span>
+                  <input id="phone" placeholder="0000-0000" inputmode="numeric" maxlength="9" />
+                  <button id="checkBtn" class="btn btnSquare" type="button" aria-label="조회">확인</button>
+                </div>
+                <div id="phoneWarn" class="warn">휴대폰 뒤 8자리를 입력해 주세요.</div>
+              </div>
+
+              <div id="loading" style="display:none; align-items:center; gap:10px;">
+                <div class="spinner"></div>
+                <div class="muted" style="font-size:13px;">조회 중…</div>
+              </div>
+
+              <div id="result" style="display:none;">
+                <div style="font-weight:900; margin-top:6px;">진행 중 접수</div>
+                <div id="ticketBtns" class="ticketBtns" style="margin-top:10px;"></div>
+                <div id="empty" class="empty" style="display:none;">진행 중인 접수 건이 없습니다.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- step 2: detail -->
+      <section id="stDetail" class="stage">
+        <div class="stack">
+          <div class="card">
+            <div class="kv">
+              <div class="kvRow"><div class="k">접수일자</div><div class="v" id="dDate">-</div></div>
+              <div class="kvRow"><div class="k">현재상태</div><div class="v" id="dStatus">-</div></div>
+              <div class="kvRow"><div class="k">이름</div><div class="v" id="dName">-</div></div>
+              <div class="kvRow"><div class="k">전화번호</div><div class="v" id="dPhone">-</div></div>
+              <div class="kvRow"><div class="k">주소</div><div class="v" id="dAddr">-</div></div>
+            </div>
+
+            <div style="margin-top:14px; font-weight:900;">등록 품목</div>
+            <div id="dItems" class="items"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const bar = document.getElementById('bar');
+      const tabs = document.getElementById('tabs');
+
+      const stPhone = document.getElementById('stPhone');
+      const stDetail = document.getElementById('stDetail');
+
+      const phoneEl = document.getElementById('phone');
+      const checkBtn = document.getElementById('checkBtn');
+      const phoneWarn = document.getElementById('phoneWarn');
+      const loading = document.getElementById('loading');
+      const result = document.getElementById('result');
+      const ticketBtns = document.getElementById('ticketBtns');
+      const empty = document.getElementById('empty');
+
+      const dDate = document.getElementById('dDate');
+      const dStatus = document.getElementById('dStatus');
+      const dName = document.getElementById('dName');
+      const dPhone = document.getElementById('dPhone');
+      const dAddr = document.getElementById('dAddr');
+      const dItems = document.getElementById('dItems');
+
+      let tickets = [];
+      let selectedIdx = 0;
+
+      function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
+      function formatPhone8(raw){
+        const d = digitsOnly(raw).slice(0,8);
+        if(d.length <= 4) return d;
+        return `${d.slice(0,4)}-${d.slice(4)}`;
+      }
+      function isValidPhone8(v){ return digitsOnly(v).length === 8; }
+
+      function maskName(name){
+        const s = (name||'').trim();
+        if(s.length <= 1) return '*';
+        if(s.length === 2) return s[0] + '*';
+        return s[0] + '*'.repeat(s.length-2) + s[s.length-1];
+      }
+      function maskPhone(full010){
+        // show only last 2 digits
+        const d = digitsOnly(full010);
+        const last2 = d.slice(-2);
+        return '*'.repeat(Math.max(0, d.length-2)) + last2;
+      }
+      function maskAddr(base, detail){
+        const b = (base||'').trim();
+        const d = (detail||'').trim();
+        const maskedDetail = d ? '*'.repeat(Math.min(8, Math.max(3, d.length))) : '';
+        return [b, maskedDetail].filter(Boolean).join(' ');
+      }
+
+      function setStage(detail){
+        stPhone.classList.toggle('active', !detail);
+        stDetail.classList.toggle('active', !!detail);
+        tabs.style.display = detail ? 'flex' : 'none';
+        bar.style.width = detail ? '66%' : '33%';
+        window.scrollTo({top:0, behavior:'instant'});
+      }
+
+      function renderTicketBtns(){
+        ticketBtns.innerHTML = '';
+        empty.style.display = tickets.length ? 'none' : 'block';
+        tickets.forEach((t, idx)=>{
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'ticketBtn';
+          b.innerHTML = `<strong>${t.no}</strong><span>${t.createdAt}</span>`;
+          b.addEventListener('click', ()=>{
+            selectedIdx = idx;
+            renderTabs();
+            renderDetail();
+            setStage(true);
+          });
+          ticketBtns.appendChild(b);
+        });
+      }
+
+      function renderTabs(){
+        tabs.innerHTML = '';
+        tickets.forEach((t, idx)=>{
+          const el = document.createElement('button');
+          el.type = 'button';
+          el.className = 'tab' + (idx===selectedIdx ? ' active' : '');
+          el.innerHTML = `<strong>${t.no}</strong><span>${t.createdAt}</span>`;
+          el.addEventListener('click', ()=>{
+            selectedIdx = idx;
+            renderTabs();
+            renderDetail();
+          });
+          tabs.appendChild(el);
+        });
+      }
+
+      function renderDetail(){
+        const t = tickets[selectedIdx];
+        if(!t) return;
+        dDate.textContent = t.createdAt;
+        dStatus.textContent = t.status;
+        dName.textContent = maskName(t.name);
+        dPhone.textContent = maskPhone(t.phone);
+        dAddr.textContent = maskAddr(t.addrBase, t.addrDetail);
+
+        dItems.innerHTML = '';
+        t.items.forEach((it)=>{
+          const box = document.createElement('div');
+          box.className = 'it';
+          box.innerHTML = `
+            <div class="itTop"><strong>${it.name}</strong><span>${it.qty}개</span></div>
+            <div class="itSym">${it.symptom}</div>
+          `;
+          dItems.appendChild(box);
+        });
+      }
+
+      function mockFetchTickets(phone8){
+        // 진행중(미완료)만
+        const basePhone = '010-' + formatPhone8(phone8);
+        const nowY = new Date().getFullYear();
+        return [
+          {
+            no: `CS-${nowY}-1482`,
+            createdAt: `${nowY}-04-18`,
+            status: '접수완료(처리중)',
+            name: '홍길동',
+            phone: basePhone,
+            addrBase: '서울특별시 강남구 테헤란로 123',
+            addrDetail: '101동 1203호',
+            items: [
+              { name:'ABKO 키보드 K', qty:1, symptom:'키 입력이 간헐적으로 씹힘' },
+              { name:'ABKO 마우스 M', qty:2, symptom:'휠 튐 현상 발생' },
+            ]
+          },
+          {
+            no: `CS-${nowY}-1539`,
+            createdAt: `${nowY}-04-19`,
+            status: '기사 배정(처리중)',
+            name: '김철수',
+            phone: basePhone,
+            addrBase: '경기도 성남시 분당구 판교로 456',
+            addrDetail: 'B동 502호',
+            items: [
+              { name:'ABKO 케이스 C', qty:1, symptom:'전원 버튼이 작동하지 않음' },
+            ]
+          }
+        ];
+      }
+
+      phoneEl.addEventListener('input', ()=>{
+        phoneEl.value = formatPhone8(phoneEl.value);
+        phoneWarn.classList.remove('show');
+      });
+
+      checkBtn.addEventListener('click', ()=>{
+        if(!isValidPhone8(phoneEl.value)){
+          phoneWarn.classList.add('show');
+          phoneEl.classList.add('error');
+          phoneEl.focus();
+          return;
+        }
+        phoneEl.classList.remove('error');
+        phoneWarn.classList.remove('show');
+
+        loading.style.display = 'flex';
+        result.style.display = 'none';
+
+        // mock loading
+        setTimeout(()=>{
+          tickets = mockFetchTickets(phoneEl.value);
+          loading.style.display = 'none';
+          result.style.display = 'block';
+          renderTicketBtns();
+          bar.style.width = '33%';
+        }, 900);
+      });
+
+      // init
+      bar.style.width = '33%';
+    </script>
+  </body>
+</html>
