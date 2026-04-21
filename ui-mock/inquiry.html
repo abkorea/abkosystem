@@ -92,6 +92,14 @@
 
         <div class="card">
           <div class="field">
+            <label>이메일(선택)</label>
+            <input id="inqEmail" type="email" placeholder="example@email.com" />
+            <div id="emailWarn" class="warn">이메일 형식이 올바르지 않습니다.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="field">
             <label class="req">문의 항목</label>
             <select id="inqCategory">
               <option value="">문의 유형을 선택해 주세요</option>
@@ -138,6 +146,7 @@
     <script>
       const inqName     = document.getElementById('inqName');
       const inqPhone    = document.getElementById('inqPhone');
+      const inqEmail    = document.getElementById('inqEmail');
       const inqCategory = document.getElementById('inqCategory');
       const inqContent  = document.getElementById('inqContent');
       const submitBtn   = document.getElementById('submitBtn');
@@ -157,11 +166,24 @@
         return d.length === 10 || d.length === 11;
       }
 
+      function isValidEmail(v){
+        if(!v) return true;
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      }
+
+      function setEmailState(){
+        const ok = isValidEmail(inqEmail.value.trim());
+        inqEmail.classList.toggle('error', !ok);
+        document.getElementById('emailWarn').classList.toggle('show', !ok);
+        return ok;
+      }
+
       function validate(){
         const ok = inqName.value.trim() &&
                    isValidPhone(inqPhone.value) &&
                    inqCategory.value &&
-                   inqContent.value.trim();
+                   inqContent.value.trim() &&
+                   setEmailState();
         submitBtn.classList.toggle('is-disabled', !ok);
         return !!ok;
       }
@@ -169,6 +191,8 @@
       inqName.addEventListener('input', validate);
       inqCategory.addEventListener('change', validate);
       inqContent.addEventListener('input', validate);
+      inqEmail.addEventListener('input', validate);
+      inqEmail.addEventListener('blur', validate);
 
       inqPhone.addEventListener('input', ()=>{
         inqPhone.value = formatPhone(inqPhone.value);
@@ -190,6 +214,7 @@
 
         if(!inqName.value.trim()) tryFocus(inqName,'nameWarn'); else clearErr(inqName,'nameWarn');
         if(!isValidPhone(inqPhone.value)) tryFocus(inqPhone,'phoneWarn'); else clearErr(inqPhone,'phoneWarn');
+        if(!isValidEmail(inqEmail.value.trim())) tryFocus(inqEmail,'emailWarn'); else clearErr(inqEmail,'emailWarn');
         if(!inqCategory.value) tryFocus(inqCategory,'catWarn'); else clearErr(inqCategory,'catWarn');
         if(!inqContent.value.trim()) tryFocus(inqContent,'contentWarn'); else clearErr(inqContent,'contentWarn');
 

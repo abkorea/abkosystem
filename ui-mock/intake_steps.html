@@ -169,7 +169,7 @@
                 <h2 class="homeTitle">문의 접수</h2>
                 <p class="homeDesc">제품에 대해 문의할 내용이 있으신가요?</p>
               </div>
-              <button id="startAskBtn" class="btn btnWide" type="button">문의 접수하기(준비중)</button>
+              <button id="startAskBtn" class="btn btnWide" type="button">문의 접수하기</button>
             </div>
 
             <!-- 3) 진행상황 확인 -->
@@ -548,7 +548,7 @@
       });
 
       startAskBtn.addEventListener('click', ()=>{
-        alert('문의 접수는 준비 중입니다.');
+        window.location.href = './inquiry.html';
       });
 
       trackBtn.addEventListener('click', ()=>{
