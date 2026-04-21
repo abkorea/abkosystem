@@ -15,6 +15,8 @@
       .brandHeader{ position:sticky; top:0; z-index:20; background: rgba(242,244,247,.95); backdrop-filter:blur(8px); padding:12px 0 0; }
       .brandHeaderRow{ display:grid; grid-template-columns:38px 1fr 38px; align-items:center; padding:0 14px; }
       .brandHeader .bTitle{ margin:0; font-size:18px; font-weight:900; letter-spacing:-.5px; text-align:center; }
+      .back{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; }
+      .back:active{ transform:translateY(1px); }
 
       label{ font-size:14px; }
       label.req::after{ content:' *'; color:var(--bad); font-size:12px; }
@@ -64,7 +66,7 @@
     <!-- 항상 고정 브랜드 헤더 -->
     <div class="brandHeader">
       <div class="brandHeaderRow">
-        <div></div>
+        <button class="back" type="button" onclick="history.back()" aria-label="뒤로">←</button>
         <h1 class="bTitle">ABKO 고객지원</h1>
         <div></div>
       </div>
@@ -178,19 +180,54 @@
         return ok;
       }
 
+      function setNameState(){
+        const ok = !!inqName.value.trim();
+        inqName.classList.toggle('error', !ok);
+        document.getElementById('nameWarn').classList.toggle('show', !ok);
+        return ok;
+      }
+
+      function setPhoneState(){
+        const ok = isValidPhone(inqPhone.value);
+        inqPhone.classList.toggle('error', !ok);
+        document.getElementById('phoneWarn').classList.toggle('show', !ok);
+        return ok;
+      }
+
+      function setCatState(){
+        const ok = !!inqCategory.value;
+        inqCategory.classList.toggle('error', !ok);
+        document.getElementById('catWarn').classList.toggle('show', !ok);
+        return ok;
+      }
+
+      function setContentState(){
+        const ok = !!inqContent.value.trim();
+        inqContent.classList.toggle('error', !ok);
+        document.getElementById('contentWarn').classList.toggle('show', !ok);
+        return ok;
+      }
+
       function validate(){
-        const ok = inqName.value.trim() &&
-                   isValidPhone(inqPhone.value) &&
-                   inqCategory.value &&
-                   inqContent.value.trim() &&
+        const ok = setNameState() &&
+                   setPhoneState() &&
+                   setCatState() &&
+                   setContentState() &&
                    setEmailState();
         submitBtn.classList.toggle('is-disabled', !ok);
         return !!ok;
       }
 
+      // 실시간(입력) + 포커스 이동(blur) 시 오류 하이라이트 자동 제거
       inqName.addEventListener('input', validate);
+      inqName.addEventListener('blur', validate);
+
       inqCategory.addEventListener('change', validate);
+      inqCategory.addEventListener('blur', validate);
+
       inqContent.addEventListener('input', validate);
+      inqContent.addEventListener('blur', validate);
+
       inqEmail.addEventListener('input', validate);
       inqEmail.addEventListener('blur', validate);
 
@@ -198,6 +235,7 @@
         inqPhone.value = formatPhone(inqPhone.value);
         validate();
       });
+      inqPhone.addEventListener('blur', validate);
 
       submitBtn.addEventListener('click', ()=>{
         // 유효성 검사 + 오류 포커싱
