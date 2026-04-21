@@ -204,10 +204,7 @@
                 <input id="bizNo" placeholder="000-00-00000" inputmode="numeric" maxlength="12" />
                 <div id="bizNoWarn" class="warn">사업자번호 10자리를 입력해 주세요.</div>
               </div>
-              <div class="field">
-                <label class="req">담당자명</label>
-                <input id="bizContact" placeholder="홍길동" />
-              </div>
+
             </div>
           </div>
 
@@ -413,7 +410,7 @@
       const companyName = document.getElementById('companyName');
       const bizNo = document.getElementById('bizNo');
       const bizNoWarn = document.getElementById('bizNoWarn');
-      const bizContact = document.getElementById('bizContact');
+
       const step2Title = document.getElementById('step2Title');
       const step2Desc = document.getElementById('step2Desc');
 
@@ -516,7 +513,7 @@
           const addrOk = setAddrDetailState();
           let ok = nameEl.value.trim() && isValidPhone(phoneEl.value) && consentRequired.checked && isValidEmail(emailEl.value.trim()) && addrOk;
           if(customerType === 'biz'){
-            ok = ok && companyName.value.trim() && isValidBizNo(bizNo.value) && bizContact.value.trim();
+            ok = ok && companyName.value.trim() && isValidBizNo(bizNo.value);
           }
           nextBtn.classList.toggle('is-disabled', !ok);
           return;
@@ -536,7 +533,7 @@
         const isBiz = t === 'biz';
         bizFields.style.display = isBiz ? 'block' : 'none';
         step2Title.textContent = isBiz ? '사업자 정보를 입력해 주세요' : '개인정보를 입력해 주세요';
-        step2Desc.textContent = isBiz ? '회사명·사업자번호·담당자 정보가 필요합니다.' : '연락 가능한 정보가 있어야 빠르게 처리할 수 있어요.';
+        step2Desc.textContent = isBiz ? '회사명·사업자번호 정보가 필요합니다.' : '연락 가능한 정보가 있어야 빠르게 처리할 수 있어요.';
       }
 
       typePersonal.addEventListener('click', ()=>selectType('personal'));
@@ -565,7 +562,7 @@
         updateNextVisual();
       });
       companyName.addEventListener('input', updateNextVisual);
-      bizContact.addEventListener('input', updateNextVisual);
+
 
       phoneEl.addEventListener('input', ()=>{ phoneEl.value = formatPhone(phoneEl.value); });
       phoneEl.addEventListener('blur', ()=>{ setPhoneState(); updateNextVisual(); });
@@ -633,8 +630,7 @@
               bizNo.classList.add('error'); bizNoWarn.classList.add('show'); focusAndScroll(bizNo); return;
             }
             bizNo.classList.remove('error'); bizNoWarn.classList.remove('show');
-            if(!bizContact.value.trim()){ bizContact.classList.add('error'); focusAndScroll(bizContact); return; }
-            bizContact.classList.remove('error');
+
           }
 
           const okName = !!nameEl.value.trim();
