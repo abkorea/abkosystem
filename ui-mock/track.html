@@ -45,7 +45,7 @@
       @keyframes spin{ to{ transform:rotate(360deg);} }
 
       .ticketBtns{ display:flex; gap:8px; flex-wrap:wrap; }
-      .ticketBtn{ display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:14px; border:1px solid var(--line); background:#fff; cursor:pointer; box-shadow: var(--shadow); }
+      .ticketBtn{ width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; border-radius:14px; border:1px solid var(--line); background:#fff; cursor:pointer; box-shadow: var(--shadow); }
       .ticketBtn strong{ font-size:13px; }
       .ticketBtn span{ font-size:12px; color:var(--muted); }
 
@@ -59,8 +59,8 @@
 
       .kv{ display:grid; gap:10px; }
       .kvRow{ display:grid; grid-template-columns: 92px 1fr; gap:10px; }
-      .k{ color:var(--muted); font-size:12px; }
-      .v{ font-size:14px; font-weight:700; }
+      .k{ color:var(--muted); font-size:14px; font-weight:800; }
+      .v{ font-size:15px; font-weight:700; }
 
       .items{ margin-top:12px; display:grid; gap:10px; }
       .it{ border:1px solid var(--line); border-radius:14px; padding:12px; background:#fff; }
@@ -75,7 +75,7 @@
   <body>
     <div class="brandHeader">
       <div class="brandHeaderRow">
-        <button class="back" type="button" onclick="history.back()" aria-label="뒤로">←</button>
+        <button id="backBtn" class="back" type="button" aria-label="뒤로">←</button>
         <h1 class="bTitle">ABKO 고객지원</h1>
         <div></div>
       </div>
@@ -145,6 +145,7 @@
     <script>
       const bar = document.getElementById('bar');
       const tabs = document.getElementById('tabs');
+      const backBtn = document.getElementById('backBtn');
 
       const stPhone = document.getElementById('stPhone');
       const stDetail = document.getElementById('stDetail');
@@ -201,6 +202,17 @@
         bar.style.width = detail ? '66%' : '33%';
         window.scrollTo({top:0, behavior:'instant'});
       }
+
+      // back behavior: detail -> list/phone, phone -> main page
+      backBtn.addEventListener('click', ()=>{
+        if(stDetail.classList.contains('active')){
+          setStage(false);
+          // keep results visible if already fetched
+          if(tickets.length){ result.style.display = 'block'; }
+          return;
+        }
+        history.back();
+      });
 
       function renderTicketBtns(){
         ticketBtns.innerHTML = '';
