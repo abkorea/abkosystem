@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ABKO 고객지원 - 문의 접수</title>
+    <link rel="stylesheet" href="./_style.css" />
+    <style>
+      :root{ --pageMax: 460px; }
+      body{ background: var(--bg); }
+
+      .page{ max-width: var(--pageMax); margin: 0 auto; padding: 0 14px 120px; }
+
+      /* 브랜드 고정 헤더 */
+      .brandHeader{ position:sticky; top:0; z-index:20; background: rgba(242,244,247,.95); backdrop-filter:blur(8px); padding:12px 0 0; }
+      .brandHeaderRow{ display:grid; grid-template-columns:38px 1fr 38px; align-items:center; padding:0 14px; }
+      .brandHeader .bTitle{ margin:0; font-size:18px; font-weight:900; letter-spacing:-.5px; text-align:center; }
+
+      label{ font-size:14px; }
+      label.req::after{ content:' *'; color:var(--bad); font-size:12px; }
+
+      .hint{ font-size:13px; color:var(--muted); margin-top:4px; }
+      .warn{ margin-top:6px; font-size:12px; color:var(--bad); display:none; }
+      .warn.show{ display:block; }
+
+      .stack{ display:grid; gap:12px; margin-top:14px; }
+
+      .card{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:16px; box-shadow: var(--shadow); }
+
+      .field{ display:flex; flex-direction:column; gap:6px; }
+
+      select{
+        background:#ffffff;
+        border:1px solid var(--line);
+        border-radius:10px;
+        padding:10px 10px;
+        color:var(--text);
+        outline:none;
+        font-size:15px;
+        appearance:auto;
+      }
+      select:focus{ border-color:var(--accent); border-width:2px; padding:9px 9px; }
+
+      /* CTA 하단 고정 */
+      .cta{ position:fixed; left:0; right:0; bottom:0; background: var(--bg); padding:12px 0 14px; }
+      .ctaInner{ max-width: var(--pageMax); margin:0 auto; padding:0 14px; }
+
+      .btnWide{ width:100%; padding:15px 14px; border-radius:16px; font-weight:900; letter-spacing:-.2px; }
+      .btnWide.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+      .btnWide.is-disabled{ cursor:not-allowed; background:#e5e7eb; border-color:#e5e7eb; color:#111827; }
+
+      /* 완료 화면 */
+      .doneWrap{ display:none; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; text-align:center; gap:16px; padding:20px 14px; }
+      .doneWrap.show{ display:flex; }
+      .doneIcon{ font-size:52px; }
+      .doneTitle{ margin:0; font-size:22px; font-weight:900; letter-spacing:-.6px; }
+      .doneDesc{ margin:0; color:var(--muted); font-size:14px; line-height:1.6; }
+      .doneNo{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px 20px; font-size:13px; color:var(--muted); }
+      .doneNo strong{ display:block; font-size:18px; color:var(--text); margin-top:4px; letter-spacing:.5px; }
+    </style>
+  </head>
+  <body>
+
+    <!-- 항상 고정 브랜드 헤더 -->
+    <div class="brandHeader">
+      <div class="brandHeaderRow">
+        <div></div>
+        <h1 class="bTitle">ABKO 고객지원</h1>
+        <div></div>
+      </div>
+    </div>
+
+    <!-- 폼 영역 -->
+    <div class="page" id="formWrap">
+      <div class="stack">
+
+        <div class="card">
+          <div class="field">
+            <label class="req">이름</label>
+            <input id="inqName" type="text" placeholder="이름을 입력해 주세요" />
+            <div id="nameWarn" class="warn">이름을 입력해 주세요.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <label class="req">연락처</label>
+            <input id="inqPhone" type="tel" inputmode="numeric" placeholder="010-0000-0000" />
+            <div id="phoneWarn" class="warn">올바른 연락처를 입력해 주세요.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <label class="req">문의 항목</label>
+            <select id="inqCategory">
+              <option value="">문의 유형을 선택해 주세요</option>
+              <option value="product">제품 문의</option>
+              <option value="as">AS / 수리 문의</option>
+              <option value="delivery">배송 문의</option>
+              <option value="exchange">교환 / 환불</option>
+              <option value="purchase">구매 문의</option>
+              <option value="etc">기타</option>
+            </select>
+            <div id="catWarn" class="warn">문의 유형을 선택해 주세요.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="field">
+            <label class="req">문의 내용</label>
+            <textarea id="inqContent" rows="6" placeholder="문의하실 내용을 자세히 입력해 주세요."></textarea>
+            <div id="contentWarn" class="warn">문의 내용을 입력해 주세요.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 완료 화면 -->
+    <div class="doneWrap" id="doneWrap">
+      <div class="doneIcon">✅</div>
+      <h2 class="doneTitle">문의가 접수되었습니다</h2>
+      <p class="doneDesc">빠른 시일 내에 등록하신 연락처로<br>답변 드리겠습니다.</p>
+      <div class="doneNo">
+        접수 번호
+        <strong id="doneNo">-</strong>
+      </div>
+    </div>
+
+    <!-- 하단 고정 버튼 -->
+    <div class="cta" id="ctaBar">
+      <div class="ctaInner">
+        <button id="submitBtn" class="btn btnWide primary is-disabled" type="button">문의 접수하기</button>
+      </div>
+    </div>
+
+    <script>
+      const inqName     = document.getElementById('inqName');
+      const inqPhone    = document.getElementById('inqPhone');
+      const inqCategory = document.getElementById('inqCategory');
+      const inqContent  = document.getElementById('inqContent');
+      const submitBtn   = document.getElementById('submitBtn');
+      const formWrap    = document.getElementById('formWrap');
+      const doneWrap    = document.getElementById('doneWrap');
+      const ctaBar      = document.getElementById('ctaBar');
+
+      function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
+      function formatPhone(raw){
+        const d = digitsOnly(raw).slice(0,11);
+        if(d.length <= 3) return d;
+        if(d.length <= 7) return `${d.slice(0,3)}-${d.slice(3)}`;
+        return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+      }
+      function isValidPhone(v){
+        const d = digitsOnly(v);
+        return d.length === 10 || d.length === 11;
+      }
+
+      function validate(){
+        const ok = inqName.value.trim() &&
+                   isValidPhone(inqPhone.value) &&
+                   inqCategory.value &&
+                   inqContent.value.trim();
+        submitBtn.classList.toggle('is-disabled', !ok);
+        return !!ok;
+      }
+
+      inqName.addEventListener('input', validate);
+      inqCategory.addEventListener('change', validate);
+      inqContent.addEventListener('input', validate);
+
+      inqPhone.addEventListener('input', ()=>{
+        inqPhone.value = formatPhone(inqPhone.value);
+        validate();
+      });
+
+      submitBtn.addEventListener('click', ()=>{
+        // 유효성 검사 + 오류 포커싱
+        let focusDone = false;
+        function tryFocus(el, warnId){
+          el.classList.add('error');
+          document.getElementById(warnId).classList.add('show');
+          if(!focusDone){ el.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(()=>el.focus({preventScroll:true}),50); focusDone=true; }
+        }
+        function clearErr(el, warnId){
+          el.classList.remove('error');
+          document.getElementById(warnId).classList.remove('show');
+        }
+
+        if(!inqName.value.trim()) tryFocus(inqName,'nameWarn'); else clearErr(inqName,'nameWarn');
+        if(!isValidPhone(inqPhone.value)) tryFocus(inqPhone,'phoneWarn'); else clearErr(inqPhone,'phoneWarn');
+        if(!inqCategory.value) tryFocus(inqCategory,'catWarn'); else clearErr(inqCategory,'catWarn');
+        if(!inqContent.value.trim()) tryFocus(inqContent,'contentWarn'); else clearErr(inqContent,'contentWarn');
+
+        if(focusDone) return;
+
+        // 접수 완료
+        const no = `QNA-${new Date().getFullYear()}-${String(Math.floor(Math.random()*9000)+1000)}`;
+        document.getElementById('doneNo').textContent = no;
+        formWrap.style.display = 'none';
+        ctaBar.style.display = 'none';
+        doneWrap.classList.add('show');
+        window.scrollTo({top:0, behavior:'instant'});
+      });
+    </script>
+  </body>
+</html>
