@@ -66,10 +66,19 @@
 
       .items{ margin-top:12px; display:grid; gap:10px; }
       .it{ border:1px solid var(--line); border-radius:14px; padding:12px; background:#fff; }
+      .it{ cursor:pointer; transition: transform .12s ease, box-shadow .12s ease; }
+      .it.open{ box-shadow: 0 6px 16px rgba(17,24,39,.10); transform: translateY(-1px); }
       .itTop{ display:flex; justify-content:space-between; gap:10px; }
       .itTop strong{ font-size:14px; }
       .itTop span{ font-size:13px; color:var(--muted); font-weight:800; }
       .itSym{ margin-top:6px; color:var(--muted); font-size:13px; line-height:1.45; }
+
+      .itDetail{ display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
+      .it.open .itDetail{ display:block; }
+      .itDetail .row2{ display:grid; gap:10px; }
+      .itDetail .kvRow{ display:grid; grid-template-columns: 92px 1fr; gap:10px; }
+
+      .sumCard{ display:none; }
 
       .empty{ margin-top:10px; color:var(--muted); font-size:13px; }
 
@@ -165,14 +174,12 @@
             <div id="dItems" class="items"></div>
           </div>
 
-          <!-- analysis/payment (conditional) -->
-          <div id="payCard" class="card" style="display:none;">
-            <div style="font-weight:900;">분석/조치</div>
+          <!-- unpaid sum (conditional) -->
+          <div id="sumCard" class="card sumCard">
+            <div style="font-weight:900;">미결제 합계</div>
             <div class="divider"></div>
             <div class="kv">
-              <div class="kvRow"><div class="k">분석내용</div><div class="v" id="dAnalysis">-</div></div>
-              <div class="kvRow"><div class="k">AS조치 방안</div><div class="v" id="dPlan">-</div></div>
-              <div class="kvRow"><div class="k">미결제 금액</div><div class="v" id="dUnpaid">-</div></div>
+              <div class="kvRow"><div class="k">합계 금액</div><div class="v" id="sumUnpaid">-</div></div>
             </div>
           </div>
         </div>
@@ -293,10 +300,8 @@
       const dAddr = document.getElementById('dAddr');
       const dItems = document.getElementById('dItems');
 
-      const payCard = document.getElementById('payCard');
-      const dAnalysis = document.getElementById('dAnalysis');
-      const dPlan = document.getElementById('dPlan');
-      const dUnpaid = document.getElementById('dUnpaid');
+      const sumCard = document.getElementById('sumCard');
+      const sumUnpaid = document.getElementById('sumUnpaid');
 
       const detailActions = document.getElementById('detailActions');
       const editBtn = document.getElementById('editBtn');
@@ -320,6 +325,7 @@
 
       let tickets = [];
       let selectedIdx = 0;
+      let selectedItemIdx = -1;
 
       function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
       function formatPhone8(raw){
@@ -415,24 +421,48 @@
         editBtn.style.display = t.canEdit ? 'block' : 'none';
         payBtn.style.display = t.unpaidAmount > 0 ? 'block' : 'none';
 
-        // analysis/pay card
-        payCard.style.display = t.unpaidAmount > 0 ? 'block' : 'none';
-        if(t.unpaidAmount > 0){
-          dAnalysis.textContent = t.analysis || '-';
-          dPlan.textContent = t.plan || '-';
-          dUnpaid.textContent = `${t.unpaidAmount.toLocaleString()}원`;
-        }
-
         dItems.innerHTML = '';
-        t.items.forEach((it)=>{
+
+        // default: if only 1 item, auto-open
+        if(t.items.length === 1) selectedItemIdx = 0;
+        if(t.items.length > 1 && selectedItemIdx >= t.items.length) selectedItemIdx = -1;
+
+        let totalUnpaid = 0;
+        t.items.forEach((it, idx)=>{
+          const itemUnpaid = Number(it.unpaidAmount || 0);
+          totalUnpaid += itemUnpaid;
           const box = document.createElement('div');
-          box.className = 'it';
+          box.className = 'it' + (idx === selectedItemIdx ? ' open' : '');
+
+          const analysis = (it.analysis || '').trim();
+          const plan = (it.plan || '').trim();
+          const hasDetail = !!analysis || !!plan || itemUnpaid > 0;
+
           box.innerHTML = `
             <div class="itTop"><strong>${it.name}</strong><span>${it.qty}개</span></div>
             <div class="itSym">${it.symptom}</div>
+            ${hasDetail ? `
+              <div class="itDetail">
+                <div class="row2">
+                  <div class="kvRow"><div class="k">분석내용</div><div class="v">${analysis || '-'}</div></div>
+                  <div class="kvRow"><div class="k">AS조치 방안</div><div class="v">${plan || '-'}</div></div>
+                  <div class="kvRow"><div class="k">미결제 금액</div><div class="v">${itemUnpaid ? itemUnpaid.toLocaleString()+'원' : '-'}</div></div>
+                </div>
+              </div>
+            ` : ''}
           `;
+
+          box.addEventListener('click', ()=>{
+            // toggle dropdown
+            selectedItemIdx = (selectedItemIdx === idx) ? -1 : idx;
+            renderDetail();
+          });
           dItems.appendChild(box);
         });
+
+        // unpaid sum card
+        sumCard.style.display = totalUnpaid > 0 ? 'block' : 'none';
+        if(totalUnpaid > 0) sumUnpaid.textContent = `${totalUnpaid.toLocaleString()}원`;
       }
 
       function mockFetchTickets(phone8){
@@ -451,8 +481,8 @@
             addrBase: '서울특별시 강남구 테헤란로 123',
             addrDetail: '101동 1203호',
             items: [
-              { name:'ABKO 키보드 K', qty:1, symptom:'키 입력이 간헐적으로 씹힘' },
-              { name:'ABKO 마우스 M', qty:2, symptom:'휠 튐 현상 발생' },
+              { name:'ABKO 키보드 K', qty:1, symptom:'키 입력이 간헐적으로 씹힘', analysis:'점검 대기', plan:'센터 입고 후 확인 예정', unpaidAmount:0 },
+              { name:'ABKO 마우스 M', qty:2, symptom:'휠 튐 현상 발생', analysis:'점검 대기', plan:'센터 입고 후 확인 예정', unpaidAmount:0 },
             ]
           },
           {
@@ -468,7 +498,7 @@
             addrBase: '경기도 성남시 분당구 판교로 456',
             addrDetail: 'B동 502호',
             items: [
-              { name:'ABKO 케이스 C', qty:1, symptom:'전원 버튼이 작동하지 않음' },
+              { name:'ABKO 케이스 C', qty:1, symptom:'전원 버튼이 작동하지 않음', analysis:'버튼 불량 의심', plan:'스위치 교체', unpaidAmount:12000 },
             ]
           }
         ];
