@@ -80,6 +80,8 @@
 
       .sumCard{ display:none; }
 
+      .itStatus{ display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900; background: rgba(0,194,179,.10); color: #0f766e; border:1px solid rgba(0,194,179,.25); }
+
       .empty{ margin-top:10px; color:var(--muted); font-size:13px; }
 
       /* detail actions */
@@ -325,7 +327,7 @@
 
       let tickets = [];
       let selectedIdx = 0;
-      let selectedItemIdx = -1;
+      const openItemSet = new Set();
 
       function digitsOnly(s){ return (s||'').replace(/\D/g,''); }
       function formatPhone8(raw){
@@ -401,6 +403,7 @@
           el.innerHTML = `<strong>${t.no}</strong><span>${t.createdAt}</span>`;
           el.addEventListener('click', ()=>{
             selectedIdx = idx;
+            openItemSet.clear();
             renderTabs();
             renderDetail();
           });
@@ -423,23 +426,25 @@
 
         dItems.innerHTML = '';
 
-        // default: if only 1 item, auto-open
-        if(t.items.length === 1) selectedItemIdx = 0;
-        if(t.items.length > 1 && selectedItemIdx >= t.items.length) selectedItemIdx = -1;
-
         let totalUnpaid = 0;
         t.items.forEach((it, idx)=>{
           const itemUnpaid = Number(it.unpaidAmount || 0);
           totalUnpaid += itemUnpaid;
           const box = document.createElement('div');
-          box.className = 'it' + (idx === selectedItemIdx ? ' open' : '');
+          box.className = 'it' + (openItemSet.has(idx) ? ' open' : '');
 
           const analysis = (it.analysis || '').trim();
           const plan = (it.plan || '').trim();
           const hasDetail = !!analysis || !!plan || itemUnpaid > 0;
 
           box.innerHTML = `
-            <div class="itTop"><strong>${it.name}</strong><span>${it.qty}개</span></div>
+            <div class="itTop">
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <span class="itStatus">${(it.itemStatus || t.status) }</span>
+                <strong>${it.name}</strong>
+              </div>
+              <span>${it.qty}개</span>
+            </div>
             <div class="itSym">${it.symptom}</div>
             ${hasDetail ? `
               <div class="itDetail">
@@ -453,8 +458,9 @@
           `;
 
           box.addEventListener('click', ()=>{
-            // toggle dropdown
-            selectedItemIdx = (selectedItemIdx === idx) ? -1 : idx;
+            // toggle this item only (multi-open)
+            if(openItemSet.has(idx)) openItemSet.delete(idx);
+            else openItemSet.add(idx);
             renderDetail();
           });
           dItems.appendChild(box);
@@ -482,7 +488,7 @@
             addrDetail: '101동 1203호',
             items: [
               { name:'ABKO 키보드 K', qty:1, symptom:'키 입력이 간헐적으로 씹힘', analysis:'점검 대기', plan:'센터 입고 후 확인 예정', unpaidAmount:0 },
-              { name:'ABKO 마우스 M', qty:2, symptom:'휠 튐 현상 발생', analysis:'점검 대기', plan:'센터 입고 후 확인 예정', unpaidAmount:0 },
+              { name:'ABKO 마우스 M', qty:2, symptom:'휠 튐 현상 발생', itemStatus:'접수완료(처리중)', analysis:'점검 대기', plan:'센터 입고 후 확인 예정', unpaidAmount:0 },
             ]
           },
           {
@@ -498,7 +504,7 @@
             addrBase: '경기도 성남시 분당구 판교로 456',
             addrDetail: 'B동 502호',
             items: [
-              { name:'ABKO 케이스 C', qty:1, symptom:'전원 버튼이 작동하지 않음', analysis:'버튼 불량 의심', plan:'스위치 교체', unpaidAmount:12000 },
+              { name:'ABKO 케이스 C', qty:1, symptom:'전원 버튼이 작동하지 않음', itemStatus:'증상확인완료', analysis:'버튼 불량 의심', plan:'스위치 교체', unpaidAmount:12000 },
             ]
           }
         ];
