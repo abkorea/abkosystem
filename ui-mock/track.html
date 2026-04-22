@@ -53,9 +53,11 @@
       .tabs{ display:flex; gap:8px; overflow-x:auto; padding: 0 14px 10px; -webkit-overflow-scrolling:touch; }
       .tabs::-webkit-scrollbar{ display:none; }
       .tab{ flex:0 0 auto; padding:10px 12px; border-radius:14px; border:1px solid var(--line); background:#fff; cursor:pointer; }
-      .tab.active{ border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,194,179,.15); }
+      .tab.active{ border:none; background: var(--accent); color:#fff; box-shadow:none; }
+      .tab:focus{ outline:none; }
       .tab strong{ display:block; font-size:13px; }
       .tab span{ display:block; margin-top:2px; font-size:12px; color:var(--muted); }
+      .tab.active span{ color: rgba(255,255,255,.9); }
 
       .kv{ display:grid; gap:10px; }
       .kvRow{ display:grid; grid-template-columns: 92px 1fr; gap:10px; }
@@ -70,6 +72,30 @@
       .itSym{ margin-top:6px; color:var(--muted); font-size:13px; line-height:1.45; }
 
       .empty{ margin-top:10px; color:var(--muted); font-size:13px; }
+
+      /* detail actions */
+      .detailActions{ position:fixed; left:0; right:0; bottom:0; background: var(--bg); padding:12px 0 14px; display:none; }
+      .detailActionsInner{ max-width: var(--pageMax); margin:0 auto; padding:0 14px; display:flex; gap:10px; }
+      .detailActionsInner .btnWide{ flex:1; }
+
+      /* edit modal */
+      .full{ position:fixed; inset:0; display:none; background: var(--bg); z-index: 50; }
+      .full.show{ display:flex; flex-direction:column; }
+      .fullPage{ max-width: var(--pageMax); margin:0 auto; padding: 12px 14px 120px; overflow-y:auto; flex:1; -webkit-overflow-scrolling:touch; }
+      .fullCta{ position:fixed; left:0; right:0; bottom:0; background: var(--bg); padding:12px 0 14px; }
+      .fullCtaInner{ max-width: var(--pageMax); margin:0 auto; padding:0 14px; display:flex; gap:10px; }
+      .fullCtaInner .btnWide{ flex:1; }
+
+      .item{ background:#fff; border:1px solid var(--line); border-radius:18px; padding:14px; box-shadow: var(--shadow); }
+      .itemTop{ display:flex; gap:10px; align-items:flex-start; }
+      .itemHeaderRow{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+      .itemName{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+      .itemQty{ flex:0 0 auto; font-size:13px; color:var(--muted); font-weight:800; }
+      .itemMeta{ margin-top:6px; color:var(--muted); font-size:13px; line-height:1.4; }
+      .itemActions{ margin-left:auto; display:flex; flex-direction:column; gap:8px; }
+      .iconBtn{ width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:#fff; color:#374151; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+      .iconBtn svg{ width:18px; height:18px; fill: currentColor; }
+      .iconBtn.danger{ color: var(--bad); }
     </style>
   </head>
   <body>
@@ -138,8 +164,110 @@
             <div style="margin-top:14px; font-weight:900;">등록 품목</div>
             <div id="dItems" class="items"></div>
           </div>
+
+          <!-- analysis/payment (conditional) -->
+          <div id="payCard" class="card" style="display:none;">
+            <div style="font-weight:900;">분석/조치</div>
+            <div class="divider"></div>
+            <div class="kv">
+              <div class="kvRow"><div class="k">분석내용</div><div class="v" id="dAnalysis">-</div></div>
+              <div class="kvRow"><div class="k">AS조치 방안</div><div class="v" id="dPlan">-</div></div>
+              <div class="kvRow"><div class="k">미결제 금액</div><div class="v" id="dUnpaid">-</div></div>
+            </div>
+          </div>
         </div>
       </section>
+    </div>
+
+    <!-- detail bottom actions -->
+    <div id="detailActions" class="detailActions">
+      <div class="detailActionsInner">
+        <button id="editBtn" class="btn btnWide" type="button" style="display:none;">수정</button>
+        <button id="payBtn" class="btn btnWide primary" type="button" style="display:none;">결제</button>
+      </div>
+    </div>
+
+    <!-- edit full-screen -->
+    <div id="editFull" class="full" aria-hidden="true">
+      <div class="fullPage">
+        <div class="appbar" style="position:sticky; top:0; background: var(--bg);">
+          <div class="appbarRow">
+            <button id="editBack" class="back" type="button" aria-label="닫기">←</button>
+            <div class="titleWrap"><h1 class="title" style="font-size:18px;">접수 수정</h1></div>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="stack" style="margin-top:10px;">
+          <div class="card">
+            <div class="field">
+              <label class="req">이름</label>
+              <input id="eName" placeholder="홍길동" />
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label>주소</label>
+              <input id="eAddrBase" placeholder="기본주소" />
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label>상세주소</label>
+              <input id="eAddrDetail" placeholder="상세주소" />
+            </div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+              <strong style="font-size:14px;">품목</strong>
+              <button id="addItem" class="btn" type="button">품목 추가</button>
+            </div>
+            <div class="divider"></div>
+            <div id="eItems" class="list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fullCta">
+        <div class="fullCtaInner">
+          <button id="saveEdit" class="btn btnWide primary" type="button">저장</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- item editor (same flow as AS 접수) -->
+    <div id="itemFull" class="full" aria-hidden="true">
+      <div class="fullPage">
+        <div class="appbar" style="position:sticky; top:0; background: var(--bg);">
+          <div class="appbarRow">
+            <button id="itemBack" class="back" type="button" aria-label="뒤로">←</button>
+            <div class="titleWrap"><h1 class="title" style="font-size:18px;">품목 정보</h1></div>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="stack" style="margin-top:10px;">
+          <div class="card">
+            <div class="row">
+              <div class="field" style="flex:1;">
+                <label class="req">제품명</label>
+                <input id="pName" placeholder="예: ABKO XXX" />
+              </div>
+              <div class="field" style="max-width:120px;">
+                <label class="req">수량</label>
+                <input id="pQty" value="1" inputmode="numeric" />
+              </div>
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label class="req">증상 상세</label>
+              <textarea id="pSym" placeholder="증상, 발생 조건, 재현 방법"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fullCta">
+        <div class="fullCtaInner">
+          <button id="saveItem" class="btn btnWide primary" type="button">품목 저장</button>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -164,6 +292,31 @@
       const dPhone = document.getElementById('dPhone');
       const dAddr = document.getElementById('dAddr');
       const dItems = document.getElementById('dItems');
+
+      const payCard = document.getElementById('payCard');
+      const dAnalysis = document.getElementById('dAnalysis');
+      const dPlan = document.getElementById('dPlan');
+      const dUnpaid = document.getElementById('dUnpaid');
+
+      const detailActions = document.getElementById('detailActions');
+      const editBtn = document.getElementById('editBtn');
+      const payBtn = document.getElementById('payBtn');
+
+      const editFull = document.getElementById('editFull');
+      const editBack = document.getElementById('editBack');
+      const saveEdit = document.getElementById('saveEdit');
+      const eName = document.getElementById('eName');
+      const eAddrBase = document.getElementById('eAddrBase');
+      const eAddrDetail = document.getElementById('eAddrDetail');
+      const eItems = document.getElementById('eItems');
+      const addItemBtn = document.getElementById('addItem');
+
+      const itemFull = document.getElementById('itemFull');
+      const itemBack = document.getElementById('itemBack');
+      const saveItem = document.getElementById('saveItem');
+      const pName = document.getElementById('pName');
+      const pQty = document.getElementById('pQty');
+      const pSym = document.getElementById('pSym');
 
       let tickets = [];
       let selectedIdx = 0;
@@ -200,6 +353,7 @@
         stDetail.classList.toggle('active', !!detail);
         tabs.style.display = detail ? 'flex' : 'none';
         bar.style.width = detail ? '66%' : '33%';
+        detailActions.style.display = detail ? 'block' : 'none';
         window.scrollTo({top:0, behavior:'instant'});
       }
 
@@ -257,6 +411,18 @@
         dPhone.textContent = maskPhone(t.phone);
         dAddr.textContent = maskAddr(t.addrBase, t.addrDetail);
 
+        // edit/pay buttons
+        editBtn.style.display = t.canEdit ? 'block' : 'none';
+        payBtn.style.display = t.unpaidAmount > 0 ? 'block' : 'none';
+
+        // analysis/pay card
+        payCard.style.display = t.unpaidAmount > 0 ? 'block' : 'none';
+        if(t.unpaidAmount > 0){
+          dAnalysis.textContent = t.analysis || '-';
+          dPlan.textContent = t.plan || '-';
+          dUnpaid.textContent = `${t.unpaidAmount.toLocaleString()}원`;
+        }
+
         dItems.innerHTML = '';
         t.items.forEach((it)=>{
           const box = document.createElement('div');
@@ -278,6 +444,8 @@
             no: `CS-${nowY}-1482`,
             createdAt: `${nowY}-04-18`,
             status: '접수완료(처리중)',
+            canEdit: false,
+            unpaidAmount: 0,
             name: '홍길동',
             phone: basePhone,
             addrBase: '서울특별시 강남구 테헤란로 123',
@@ -291,6 +459,10 @@
             no: `CS-${nowY}-1539`,
             createdAt: `${nowY}-04-19`,
             status: '기사 배정(처리중)',
+            canEdit: true,
+            analysis: '증상 확인 결과 스위치/휠 모듈 이상 가능성이 높음',
+            plan: '무상 점검 후 부품 교체(필요 시 유상 안내)',
+            unpaidAmount: 12000,
             name: '김철수',
             phone: basePhone,
             addrBase: '경기도 성남시 분당구 판교로 456',
@@ -301,6 +473,134 @@
           }
         ];
       }
+
+      // ===== edit flow =====
+      const iconPencil = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.33H5v-.92l9.06-9.06.92.92L5.92 19.58zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>`;
+      const iconTrash = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 14H7L6 7zm3-3h6l1 2H8l1-2z"/></svg>`;
+
+      let editingItems = [];
+      let editingItemIndex = -1;
+
+      function openEdit(){
+        const t = tickets[selectedIdx];
+        if(!t || !t.canEdit) return;
+        eName.value = t.name || '';
+        eAddrBase.value = t.addrBase || '';
+        eAddrDetail.value = t.addrDetail || '';
+        editingItems = (t.items || []).map(x=>({ ...x }));
+        renderEditItems();
+        editFull.classList.add('show');
+        editFull.setAttribute('aria-hidden','false');
+      }
+
+      function closeEdit(){
+        editFull.classList.remove('show');
+        editFull.setAttribute('aria-hidden','true');
+      }
+
+      function renderEditItems(){
+        eItems.innerHTML = '';
+        if(!editingItems.length){
+          const empty = document.createElement('div');
+          empty.className = 'muted small';
+          empty.textContent = '등록된 품목이 없습니다. “품목 추가”를 눌러주세요.';
+          eItems.appendChild(empty);
+          return;
+        }
+        editingItems.forEach((it, idx)=>{
+          const el = document.createElement('div');
+          el.className = 'item';
+          el.innerHTML = `
+            <div class="itemTop">
+              <div style="flex:1; min-width:0;">
+                <div class="itemHeaderRow">
+                  <strong class="itemName">${it.name}</strong>
+                  <span class="itemQty">${it.qty}개</span>
+                </div>
+                <div class="itemMeta">${it.symptom || ''}</div>
+              </div>
+              <div class="itemActions">
+                <button class="iconBtn" type="button" data-act="edit" data-idx="${idx}" aria-label="수정">${iconPencil}</button>
+                <button class="iconBtn danger" type="button" data-act="remove" data-idx="${idx}" aria-label="삭제">${iconTrash}</button>
+              </div>
+            </div>
+          `;
+          eItems.appendChild(el);
+        });
+      }
+
+      eItems.addEventListener('click', (e)=>{
+        const btn = e.target.closest('button');
+        if(!btn) return;
+        const act = btn.getAttribute('data-act');
+        const idx = Number(btn.getAttribute('data-idx'));
+        if(act==='edit') return openItemFull(idx);
+        if(act==='remove'){
+          editingItems.splice(idx,1);
+          renderEditItems();
+        }
+      });
+
+      function openItemFull(idx=-1){
+        editingItemIndex = idx;
+        if(idx >= 0){
+          const it = editingItems[idx];
+          pName.value = it.name || '';
+          pQty.value = String(it.qty || 1);
+          pSym.value = it.symptom || '';
+        } else {
+          pName.value = '';
+          pQty.value = '1';
+          pSym.value = '';
+        }
+        itemFull.classList.add('show');
+        itemFull.setAttribute('aria-hidden','false');
+        pName.focus();
+      }
+
+      function closeItemFull(){
+        itemFull.classList.remove('show');
+        itemFull.setAttribute('aria-hidden','true');
+      }
+
+      addItemBtn.addEventListener('click', ()=>openItemFull(-1));
+      itemBack.addEventListener('click', closeItemFull);
+      editBack.addEventListener('click', closeEdit);
+
+      saveItem.addEventListener('click', ()=>{
+        const name = pName.value.trim();
+        const sym = pSym.value.trim();
+        const qty = Math.max(1, parseInt(pQty.value||'1',10) || 1);
+        if(!name){ pName.classList.add('error'); pName.focus(); return; }
+        if(!sym){ pSym.classList.add('error'); pSym.focus(); return; }
+        pName.classList.remove('error');
+        pSym.classList.remove('error');
+
+        const payload = { name, qty, symptom: sym };
+        if(editingItemIndex >= 0) editingItems[editingItemIndex] = payload;
+        else editingItems.push(payload);
+        closeItemFull();
+        renderEditItems();
+      });
+
+      saveEdit.addEventListener('click', ()=>{
+        const t = tickets[selectedIdx];
+        if(!t || !t.canEdit) return;
+        if(!eName.value.trim()){ eName.classList.add('error'); eName.focus(); return; }
+        eName.classList.remove('error');
+        t.name = eName.value.trim();
+        t.addrBase = eAddrBase.value.trim();
+        t.addrDetail = eAddrDetail.value.trim();
+        t.items = editingItems.map(x=>({ ...x }));
+        closeEdit();
+        renderTabs();
+        renderDetail();
+      });
+
+      editBtn.addEventListener('click', openEdit);
+      payBtn.addEventListener('click', ()=>{
+        alert('결제 플로우는 UI mock 단계입니다.');
+      });
 
       phoneEl.addEventListener('input', ()=>{
         phoneEl.value = formatPhone8(phoneEl.value);
