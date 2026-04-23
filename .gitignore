@@ -10,3 +10,7 @@ coverage/
 # local tooling
 .vscode/
 
+# OpenClaw local assistant files (do not commit)
+AGENTS.md
+SOUL.md
+MEMORY.md
