@@ -145,17 +145,32 @@
         <div class="card">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
             <strong style="font-size:14px;">동의</strong>
-            <button id="consentViewBtn" class="btn" type="button" style="padding:8px 10px; border-radius:12px;">내용보기</button>
           </div>
           <div class="divider"></div>
-          <label style="display:flex; gap:10px; align-items:flex-start; cursor:pointer;">
-            <input id="consentRequired" type="checkbox" style="margin-top:2px;" />
-            <div>
-              <div style="font-weight:900;">(필수) 개인정보 수집/이용 동의</div>
-              <div class="muted small" style="margin-top:2px;">문의 접수 처리를 위해 필요합니다.</div>
-            </div>
-          </label>
-          <div id="consentWarn" class="warn">개인정보 수집/이용 동의가 필요합니다.</div>
+
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+            <label style="display:flex; gap:10px; align-items:flex-start; cursor:pointer; flex:1;">
+              <input id="consentRequired" type="checkbox" style="margin-top:2px;" />
+              <div>
+                <div style="font-weight:900;">(필수) 이용약관 동의</div>
+                <div class="muted small" style="margin-top:2px;">문의 접수 처리를 위해 필요합니다.</div>
+              </div>
+            </label>
+            <button id="termsViewBtn" class="btn" type="button" style="padding:8px 10px; border-radius:12px;">내용보기</button>
+          </div>
+
+          <div style="margin-top:10px; display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+            <label style="display:flex; gap:10px; align-items:flex-start; cursor:pointer; flex:1;">
+              <input id="consentThird" type="checkbox" style="margin-top:2px;" />
+              <div>
+                <div style="font-weight:900;">(필수) 제3자 정보 제공 동의</div>
+                <div class="muted small" style="margin-top:2px;">문의 처리 및 안내를 위해 필요합니다.</div>
+              </div>
+            </label>
+            <button id="thirdViewBtn" class="btn" type="button" style="padding:8px 10px; border-radius:12px;">내용보기</button>
+          </div>
+
+          <div id="consentWarn" class="warn">필수 약관 동의가 필요합니다.</div>
         </div>
 
       </div>
@@ -179,27 +194,20 @@
       </div>
     </div>
 
-    <!-- 개인정보 동의 보기 -->
+    <!-- 약관 내용 보기 -->
     <div id="consentFull" class="full" aria-hidden="true">
       <div class="fullPage">
         <div class="appbar" style="position:sticky; top:0; background: var(--bg);">
           <div class="appbarRow" style="display:grid; grid-template-columns:38px 1fr 38px; align-items:center; gap:10px;">
             <button id="consentBack" class="back" type="button" aria-label="뒤로">←</button>
-            <div class="titleWrap" style="text-align:center;"><h1 class="title" style="margin:0; font-size:18px; font-weight:900;">개인정보 동의</h1></div>
+            <div class="titleWrap" style="text-align:center;"><h1 id="consentTitle" class="title" style="margin:0; font-size:18px; font-weight:900;">약관</h1></div>
             <div></div>
           </div>
         </div>
 
         <div class="stack" style="margin-top:10px;">
           <div class="card">
-            <strong style="font-size:14px;">(필수) 개인정보 수집/이용 동의</strong>
-            <div class="divider"></div>
-            <div class="muted" style="font-size:13px; line-height:1.65;">
-              문의 접수 처리를 위해 이름, 연락처, 이메일(선택), 문의 항목 및 문의 내용을 수집합니다.\n\n
-              수집 목적: 문의 접수 처리 및 고객 응대\n
-              보유 기간: 처리 완료 후 관련 법령 또는 내부 정책에 따른 기간 보관\n\n
-              동의를 거부할 권리가 있으나, 동의하지 않을 경우 문의 접수가 제한될 수 있습니다.
-            </div>
+            <div id="consentBody" class="muted" style="font-size:13px; line-height:1.65; white-space:pre-line;"></div>
           </div>
         </div>
       </div>
@@ -221,11 +229,16 @@
       const bar         = document.getElementById('bar');
 
       const consentRequired = document.getElementById('consentRequired');
+      const consentThird = document.getElementById('consentThird');
       const consentWarn = document.getElementById('consentWarn');
-      const consentViewBtn = document.getElementById('consentViewBtn');
+      const termsViewBtn = document.getElementById('termsViewBtn');
+      const thirdViewBtn = document.getElementById('thirdViewBtn');
       const consentFull = document.getElementById('consentFull');
       const consentBack = document.getElementById('consentBack');
       const consentAgree = document.getElementById('consentAgree');
+      const consentTitle = document.getElementById('consentTitle');
+      const consentBody = document.getElementById('consentBody');
+      let consentTarget = 'terms';
       const formWrap    = document.getElementById('formWrap');
       const doneWrap    = document.getElementById('doneWrap');
       const ctaBar      = document.getElementById('ctaBar');
@@ -281,7 +294,7 @@
       }
 
       function setConsentState(){
-        const ok = !!consentRequired.checked;
+        const ok = !!consentRequired.checked && !!consentThird.checked;
         consentWarn.classList.toggle('show', !ok);
         return ok;
       }
@@ -293,6 +306,7 @@
           !!inqCategory.value,
           !!inqContent.value.trim(),
           !!consentRequired.checked,
+          !!consentThird.checked,
         ];
         const filled = checks.filter(Boolean).length;
         const pct = Math.round((filled / checks.length) * 100);
@@ -331,9 +345,25 @@
       inqPhone.addEventListener('blur', validate);
 
       consentRequired.addEventListener('change', validate);
+      consentThird.addEventListener('change', validate);
 
       // consent modal
-      function openConsent(){
+      const CONSENT_TEXT = {
+        terms: {
+          title: '이용약관',
+          body: `제1조(목적)\n본 약관은 문의 접수 서비스 이용과 관련한 기본 사항을 규정합니다.\n\n제2조(수집 항목)\n이름, 연락처, 이메일(선택), 문의 항목/내용\n\n제3조(보유 기간)\n처리 완료 후 관련 법령 또는 내부 정책에 따른 기간 보관\n\n동의를 거부할 권리가 있으나, 동의하지 않을 경우 문의 접수가 제한될 수 있습니다.`
+        },
+        third: {
+          title: '제3자 정보 제공 동의',
+          body: `제공받는 자: 고객지원 처리 협력사(콜센터/배송사 등)\n제공 목적: 문의 처리 및 안내\n제공 항목: 이름, 연락처, 문의 내용(필요 최소)\n보유/이용 기간: 목적 달성 후 지체 없이 파기(법령/정책에 따라 예외 가능)\n\n동의를 거부할 권리가 있으나, 동의하지 않을 경우 문의 접수가 제한될 수 있습니다.`
+        }
+      };
+
+      function openConsent(type){
+        consentTarget = type;
+        const t = CONSENT_TEXT[type];
+        consentTitle.textContent = t.title;
+        consentBody.textContent = t.body;
         consentFull.classList.add('show');
         consentFull.setAttribute('aria-hidden','false');
       }
@@ -341,10 +371,12 @@
         consentFull.classList.remove('show');
         consentFull.setAttribute('aria-hidden','true');
       }
-      consentViewBtn.addEventListener('click', openConsent);
+      termsViewBtn.addEventListener('click', ()=>openConsent('terms'));
+      thirdViewBtn.addEventListener('click', ()=>openConsent('third'));
       consentBack.addEventListener('click', closeConsent);
       consentAgree.addEventListener('click', ()=>{
-        consentRequired.checked = true;
+        if(consentTarget === 'terms') consentRequired.checked = true;
+        if(consentTarget === 'third') consentThird.checked = true;
         validate();
         closeConsent();
       });
@@ -352,7 +384,7 @@
       submitBtn.addEventListener('click', ()=>{
         if(submitBtn.classList.contains('is-disabled')){
           validate();
-          if(!consentRequired.checked) consentRequired.scrollIntoView({behavior:'smooth', block:'center'});
+          if(!consentRequired.checked || !consentThird.checked) consentRequired.scrollIntoView({behavior:'smooth', block:'center'});
           return;
         }
         // 유효성 검사 + 오류 포커싱
